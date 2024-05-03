@@ -612,6 +612,28 @@
                     <E1JSTVL SEGMENT="1">
                         <STAT>I0002</STAT>
                     </E1JSTVL>
+					<E1KBEDL SEGMENT="1">
+                        <BEDID>010000109462</BEDID>
+                        <BEDZL>00000004</BEDZL>
+                        <CANUM>0512</CANUM>
+                        <KABRREST>0.000000000000000E+00</KABRREST>
+                        <KABRSOLL>0.000000000000000E+00</KABRSOLL>
+                        <KAPAR>001</KAPAR>
+                        <KAPID>10000712</KAPID>
+                        <KBEAREST>0.000000000000000E+00</KBEAREST>
+                        <KBEASOLL>0.000000000000000E+00</KBEASOLL>
+                        <KEINH>HUR</KEINH>
+                        <KRUEREST>2.000000000000000E+00</KRUEREST>
+                        <KRUESOLL>2.000000000000000E+00</KRUESOLL>
+                        <ARBID>10000837</ARBID>
+                        <FSTAD>20240503</FSTAD>
+                        <FSTAU>065806</FSTAU>
+                        <FENDD>20240503</FENDD>
+                        <FENDU>090132</FENDU>
+                        <SPLIT>0</SPLIT>
+                        <MGVRG>4.000</MGVRG>
+                        <MEINH>EA</MEINH>
+                    </E1KBEDL>
                 </E1AFVOL>
                 <E1AFVOL SEGMENT="1">
                     <VORNR>0030</VORNR>
