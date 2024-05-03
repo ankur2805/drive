@@ -1,0 +1,2170 @@
+<?xml version='1.0' ?>
+<!-- V1.0 Comments : 		1.To change “ErpOrderType” from MAKE_TO_STOCK to MAKE_TO_ORDER.  
+					2.Release SFC on order download and assign specific number pattern.
+					3. Get Confirmation Number for each operation and map to custom table field.							
+					4. Check for leading zeros for material number   
+					5.To get step id same as operation number from ECC order when a new operation is inserted and order resent to ME.
+					6. Enhancement for Priority value to map to standard priority field. 
+					7.LOIPRO Enhancement for DC Group 
+					8.Rework on SFC Spilt with Specific no pattern ,remove non-serialized number partten  
+					9. Added Substep mapping  -->
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:sch="http://sap.com/xi/ME" xmlns:me="http://sap.com/xi/ME"  xmlns:gdt="http://sap.com/xi/SAPGlobal/GDT"  xmlns:meint="http://sap.com/xi/MEINT" xmlns:exsl="http://exslt.org/common" >
+	
+    <xsl:output method="xml" indent="yes" />
+	
+    <xsl:template match="/ZMFGE_LOIPRO04_01">
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <meint:ProductionOrderUpdateRequest_sync>
+                    <meint:ProductionOrder>
+                    	<xsl:variable name="reworkOrderCodes">|RW01|RW02|</xsl:variable>
+                    	<xsl:variable name="site" select="IDOC/E1AFKOL/WERKS" />
+						<!-- Start  Enhancement -->
+						<xsl:variable name="shop_order" select="IDOC/E1AFKOL/AUFNR"/>
+						<!-- End Enhancement -->
+                        <xsl:variable name="PO_STATUS_FLAG">                 
+	                    	<xsl:for-each select="IDOC/E1AFKOL/E1JSTKL">
+	                        	<xsl:variable name="PO_STATUS" select="STAT"/>
+	                            <xsl:if test="$PO_STATUS='I0012' or $PO_STATUS='I0045' or $PO_STATUS='I0076'">
+	                            	TRUE
+	                            </xsl:if>
+	                        </xsl:for-each>
+                        </xsl:variable>				
+                        <xsl:variable name="material">
+                                    <xsl:call-template name="addItem">
+                                         <xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+                                         <xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+                                         <xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+                                     </xsl:call-template>
+                             </xsl:variable>
+                        <sch:SiteRef>
+                            <sch:Site>
+                                <xsl:value-of select="IDOC/E1AFKOL/WERKS"/>
+                            </sch:Site>
+                        </sch:SiteRef>
+                        <sch:ShopOrderIn>
+                            <sch:SiteRef>
+                                <sch:Site>
+                                    <xsl:value-of select="IDOC/E1AFKOL/WERKS"/>
+                                </sch:Site>
+                            </sch:SiteRef>
+                            <sch:ShopOrder>
+                                <xsl:variable name="POValue" select="IDOC/E1AFKOL/AUFNR"/>
+                                <xsl:call-template name="addShopOrder">
+                                    <xsl:with-param name="shopOrder" select="$POValue"/>
+                                </xsl:call-template>
+                            </sch:ShopOrder>
+                            <sch:ShopOrderTypeRef>
+                            	<xsl:choose>
+                            		<xsl:when test="contains($reworkOrderCodes,concat('|', IDOC/E1AFKOL/AUART, '|'))">
+                                		<sch:OrderType>REWORK</sch:OrderType>
+                                	</xsl:when>
+                                	<xsl:otherwise>
+                                		<sch:OrderType>PRODUCTION</sch:OrderType>
+                            		</xsl:otherwise>
+                            	</xsl:choose>
+                            </sch:ShopOrderTypeRef>
+                            <xsl:choose>
+                                <xsl:when test="normalize-space($PO_STATUS_FLAG) != ''">
+                                    <sch:StatusRef>
+                                        <sch:Status>504</sch:Status>
+                                    </sch:StatusRef>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <sch:StatusRef>
+                                        <sch:Status>501</sch:Status>
+                                    </sch:StatusRef>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                            <sch:PlannedItemRef>
+                                <sch:Item>
+                                    <xsl:value-of select="$material"/>
+                                </sch:Item>
+                                <sch:Revision>#</sch:Revision>
+                            </sch:PlannedItemRef>
+                            <xsl:variable name="priority" select="IDOC/E1AFKOL/APRIO"/>
+                            <xsl:if test="string-length(IDOC/E1AFKOL/APRIO) &gt; '0'">
+                            	<xsl:choose>
+                            		<xsl:when test="number($priority)">
+                            			<sch:Priority>
+										<!-- Ehancement keep same nuber what is coming from ECC -->
+										<xsl:value-of select="number($priority)"/>
+                            				<!-- xsl:value-of select="number($priority)*100" / -->
+											<!-- End of Enhancement -->
+                            			</sch:Priority>
+                            		</xsl:when>
+                            		<xsl:otherwise>
+									<!-- Ehancement keep default value as 1 -->
+									<sch:Priority>9</sch:Priority>
+                            			<!-- sch:Priority>500</sch:Priority -->
+										<!-- End of enhancement  -->
+                            		</xsl:otherwise>
+                            	</xsl:choose>
+                            </xsl:if>
+                            <xsl:if test="string-length(IDOC/E1AFKOL/APRIO) = '0'">
+                            	<!-- Ehancement keep default value as 1 -->
+									<sch:Priority>9</sch:Priority>
+                            			<!-- sch:Priority>500</sch:Priority -->
+										<!-- End of enhancement  -->
+                            </xsl:if>
+                            <sch:PlannedStartDate>
+	                            <xsl:variable name="plannedStartDate" select="IDOC/E1AFKOL/GSTRS"/>
+	                            <xsl:variable name="plannedStartDateTime" select="IDOC/E1AFKOL/GSUZS"/>
+	                            <xsl:choose>
+	                                  <xsl:when test="string($plannedStartDateTime)">
+	                                        <xsl:value-of select="concat(substring($plannedStartDate, 1, 4), '-', substring($plannedStartDate, 5, 2), '-', substring($plannedStartDate, 7, 2), 'T', substring($plannedStartDateTime, 1, 2), ':',substring($plannedStartDateTime, 3, 2),':',substring($plannedStartDateTime, 5, 2) )" />
+	                                  </xsl:when>
+	                                  <xsl:otherwise>
+	                                        <xsl:value-of select="concat(substring($plannedStartDate, 1, 4), '-', substring($plannedStartDate, 5, 2), '-', substring($plannedStartDate, 7, 2), 'T00:00:01')" />
+	                                  </xsl:otherwise>
+	                            </xsl:choose>
+                            </sch:PlannedStartDate>
+                            <sch:PlannedCompleteDate>
+	                            <xsl:variable name="plannedCompDate" select="IDOC/E1AFKOL/GLTRS"/>
+	                            <xsl:variable name="plannedCompDateTime" select="IDOC/E1AFKOL/GLUZS"/>
+	                            <xsl:choose>
+	                                  <xsl:when test="string($plannedCompDateTime)">
+	                                        <xsl:value-of select="concat(substring($plannedCompDate, 1, 4), '-', substring($plannedCompDate, 5, 2), '-', substring($plannedCompDate, 7, 2), 'T', substring($plannedCompDateTime, 1, 2), ':',substring($plannedCompDateTime, 3, 2),':',substring($plannedCompDateTime, 5, 2) )" />
+	                                  </xsl:when>
+	                                  <xsl:otherwise>
+	                                        <xsl:value-of select="concat(substring($plannedCompDate, 1, 4), '-', substring($plannedCompDate, 5, 2), '-', substring($plannedCompDate, 7, 2), 'T23:59:59')" />
+	                                  </xsl:otherwise>
+	                            </xsl:choose>
+                            </sch:PlannedCompleteDate>
+							<!--//////////////////////// RFC 7000039377 START////////////////////-->
+                            <sch:QuantityToBuild>
+                                <xsl:choose>
+                                    <xsl:when test="IDOC/E1AFKOL/E1AFPOL/E1AFSER/SERNR !=''">
+                                        <xsl:value-of select="floor(IDOC/E1AFKOL/BMENGE)"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="(IDOC/E1AFKOL/BMENGE)"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </sch:QuantityToBuild>
+                            <sch:QuantityOrdered>
+                                <xsl:choose>
+                                    <xsl:when test="IDOC/E1AFKOL/E1AFPOL/E1AFSER/SERNR !=''">
+                                        <xsl:value-of select="floor(IDOC/E1AFKOL/BMENGE)"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="(IDOC/E1AFKOL/BMENGE)"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </sch:QuantityOrdered>
+							<!--//////////////////////// RFC 7000039377 END////////////////////-->
+							<!-- Enhancement Start not to add Planned BOM reference Order is TECO-->
+							<xsl:if test="IDOC/E1AFKOL/STLAN != '' and IDOC/E1AFKOL/STLAL != '' and normalize-space($PO_STATUS_FLAG)= ''">
+							<!-- Enhancement End -->
+								<sch:PlannedBOMRef>
+									<sch:Bom>
+										<xsl:call-template name="addBOMName">
+											<xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+											<xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+											<xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+											<xsl:with-param name="usage" select="IDOC/E1AFKOL/STLAN"/>
+											<xsl:with-param name="altBOM" select="IDOC/E1AFKOL/STLAL"/>
+										</xsl:call-template>
+									</sch:Bom>
+									<sch:Revision>#</sch:Revision>
+								</sch:PlannedBOMRef>
+							</xsl:if>
+							<sch:PlannedRouterRef>
+								<xsl:choose>
+									<xsl:when test="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1AFREF/MES_ROUTINGID">
+										<sch:Router>
+											<xsl:call-template name="getId">
+												<xsl:with-param name="key" select="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1AFREF/MES_ROUTINGID" />
+											</xsl:call-template>
+										</sch:Router>
+										<sch:Revision>
+											<xsl:call-template name="getRevision">
+												<xsl:with-param name="key" select="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1AFREF/MES_ROUTINGID" />
+											</xsl:call-template>
+										</sch:Revision>
+									</xsl:when>
+									<xsl:otherwise>
+										<sch:Router>
+											<xsl:value-of select="IDOC/E1AFKOL/PLNNR" />-<xsl:value-of select="IDOC/E1AFKOL/PLNAL" />
+										</sch:Router>
+										<sch:Revision>#</sch:Revision>
+									</xsl:otherwise>
+								</xsl:choose>
+								<sch:RouterType>H</sch:RouterType>
+							</sch:PlannedRouterRef>
+                            <sch:ErpOrder>true</sch:ErpOrder>
+                            <sch:AllowInqueueSfcOnSoClose>true</sch:AllowInqueueSfcOnSoClose>
+                            <sch:ErpUnitOfMeasure>
+                                <xsl:value-of select="IDOC/E1AFKOL/BMEINS"/>
+                            </sch:ErpUnitOfMeasure>
+			
+							<sch:ShopOrderSelectionRulesList>
+									<xsl:for-each select="IDOC/E1AFKOL/E1VCODR">
+										<sch:ShopOrderSelectionRuleDetail>
+											<sch:ErpSelectionRule><xsl:value-of select="KNNAM"/></sch:ErpSelectionRule>
+											<sch:ErpSelectionValue><xsl:value-of select="RESULT"/></sch:ErpSelectionValue>
+										</sch:ShopOrderSelectionRuleDetail>
+									</xsl:for-each>
+							</sch:ShopOrderSelectionRulesList>
+
+                             <xsl:for-each select="IDOC/E1AFKOL/E1AFPOL[POSNR='0001']">
+							 	<sch:ErpPutawayStorageLocation>
+                                 	<xsl:value-of select="LGORT"/>
+                             	</sch:ErpPutawayStorageLocation>
+                             	<sch:BatchNumber>
+                                    <xsl:value-of select="CHARG"/>
+                                </sch:BatchNumber>
+                                <sch:WarehouseNumber>
+                                	<xsl:value-of select="LGNUM"/>
+                                </sch:WarehouseNumber>
+							</xsl:for-each>
+					<!-- Start SFC Enhancement -->
+                            <sch:ShopOrderSFCPlanList>
+								<xsl:choose>
+									<xsl:when test="IDOC/E1AFKOL/E1AFPOL/E1AFSER">
+		                                <xsl:for-each select="IDOC/E1AFKOL/E1AFPOL/E1AFSER">
+		                                    <sch:ShopOrderSFCPlan>                                        
+		                                        <sch:Sfc><xsl:value-of select="concat($shop_order, '-', SERNR)"/></sch:Sfc>
+		                                        <sch:IsErpSfcNumber>true</sch:IsErpSfcNumber>
+		                                        <sch:SerialNumber><xsl:value-of select="SERNR"/></sch:SerialNumber>
+		                                        <sch:IsErpSerialNumber>true</sch:IsErpSerialNumber>
+		                                    </sch:ShopOrderSFCPlan>
+		                                </xsl:for-each>
+									</xsl:when>
+								</xsl:choose>
+                            </sch:ShopOrderSFCPlanList>
+					<!-- End of SFC Enhancement -->
+							<xsl:if test="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1QAMVL">
+								<sch:InspectionLot>
+									<xsl:value-of select="string(floor(IDOC/E1AFKOL/PRUEFLOS))"/>
+								</sch:InspectionLot>
+					<!-- Start of DC Enhancement Inspection group Size – do not pass any value -->
+								<sch:InspectionGroupSize>
+								<!-- xsl:value-of select="floor(IDOC/E1AFKOL/BMENGE)"/ -->
+								</sch:InspectionGroupSize>
+					<!-- End of DC Enhancement -->
+							</xsl:if>
+							<!--							
+							<sch:ShopOrderInspectionLotList>
+                                <xsl:for-each select="IDOC/E1AFKOL/E1AFFLL">
+                                <xsl:sort select="PLNFL"/>
+								<xsl:if test="FLGAT = 0">
+                                <xsl:for-each select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013']">
+								<xsl:sort select="VORNR"/>
+								<xsl:variable name="seqCounter" select="position()"/>
+										<xsl:if test="E1QAMVL">
+                                       <sch:ShopOrderInspectionLot>
+										<sch:ShopOrderRef>
+											<sch:ShopOrder>
+												<xsl:value-of select="../../AUFNR" />
+											</sch:ShopOrder>
+											<sch:SiteRef>
+												<sch:Site>
+													<xsl:value-of select="../../WERKS" />
+												</sch:Site>
+											</sch:SiteRef>
+										</sch:ShopOrderRef>
+										<sch:RouterStepRef>
+											<sch:RouterRef>
+												<sch:SiteRef>
+													<sch:Site>
+														<xsl:value-of select="../../WERKS" />
+													</sch:Site>
+												</sch:SiteRef>
+												<xsl:choose>
+													<xsl:when test="E1AFREF/MES_ROUTINGID">
+														<sch:Router>
+															<xsl:call-template name="getId">
+																<xsl:with-param name="key" select="E1AFREF/MES_ROUTINGID" />
+															</xsl:call-template>
+														</sch:Router>
+														<sch:Revision>
+															<xsl:call-template name="getRevision">
+																<xsl:with-param name="key" select="E1AFREF/MES_ROUTINGID" />
+															</xsl:call-template>
+														</sch:Revision>
+													</xsl:when>
+													<xsl:otherwise>
+														 <sch:Router>
+                                              				  <xsl:value-of select="../../PLNNR"/>-<xsl:value-of select="../../PLNAL"/>
+                                           				 </sch:Router>
+														<sch:Revision>#</sch:Revision>
+													</xsl:otherwise>
+												</xsl:choose>
+												<sch:RouterType>H</sch:RouterType>
+											</sch:RouterRef>
+											<sch:StepId>
+												<xsl:choose>
+													<xsl:when test="E1AFREF/MES_STEPID">
+														<xsl:value-of select="E1AFREF/MES_STEPID" />
+													</xsl:when>
+													<xsl:otherwise>					
+													
+												<xsl:number value="$seqCounter*10" format="1" />
+																
+														
+													</xsl:otherwise>
+												</xsl:choose>
+											</sch:StepId>
+										</sch:RouterStepRef>
+                                            <sch:InspectionSampleSize>
+                                            <xsl:value-of select="SAMPLE_SIZE"/>
+                                            </sch:InspectionSampleSize>
+                                    </sch:ShopOrderInspectionLot>
+										</xsl:if>
+								</xsl:for-each>
+                                </xsl:if>
+							    </xsl:for-each>
+                            </sch:ShopOrderInspectionLotList>
+							-->
+							
+							<sch:ShopOrderScheduleList>
+								<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL/E1AFVOL[E1JSTVL[last()]/STAT!='I0013']">
+									<xsl:variable name="stepCounter" select="position()" />
+									<xsl:choose>
+										<xsl:when test="E1KBEDL[SPLIT!='0']">
+											<xsl:variable name="parentCapacityId" select="E1KBEDL[SPLIT='0']/KAPID" />
+											<xsl:for-each select="E1KBEDL[SPLIT!='0']">
+												<xsl:variable name="splitCounter" select="position()" />
+												<sch:ShopOrderSchedule>
+													<sch:routerStepRef>
+														<sch:RouterRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="$site" />
+																</sch:Site>
+															</sch:SiteRef>
+															<xsl:choose>
+																<xsl:when test="../E1AFREF/MES_ROUTINGID">
+																	<sch:Router>
+																		<xsl:call-template name="getId">
+																			<xsl:with-param name="key" select="../E1AFREF/MES_ROUTINGID" />
+																		</xsl:call-template>
+																	</sch:Router>
+																	<sch:Revision>
+																		<xsl:call-template name="getRevision">
+																			<xsl:with-param name="key" select="../E1AFREF/MES_ROUTINGID" />
+																		</xsl:call-template>
+																	</sch:Revision>
+																</xsl:when>
+																<xsl:otherwise>
+																	<sch:Router>
+																		<xsl:value-of select="../../../PLNNR" />-<xsl:value-of select="../../../PLNAL" />
+																	</sch:Router>
+																	<sch:Revision>#</sch:Revision>
+																</xsl:otherwise>
+															</xsl:choose>
+															<sch:RouterType>H</sch:RouterType>
+														</sch:RouterRef>
+														<sch:StepId>
+															<xsl:choose>
+																<xsl:when test="../E1AFREF/MES_STEPID">
+																	<xsl:value-of select="../E1AFREF/MES_STEPID" />
+																</xsl:when>
+																<xsl:otherwise>
+																<!-- Enhancement Start -->
+																<!-- <xsl:call-template name="RemoveLeadingZeros"> -->
+																        <!-- <xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[$stepCounter]/VORNR"/>		 -->
+																<!-- </xsl:call-template> -->
+																	<!-- xsl:number value="$stepCounter*10" format="1" / -->
+																	<!-- Enhancement End -->
+																	<xsl:number value="$stepCounter*10" format="1"/>
+																</xsl:otherwise>
+															</xsl:choose>
+														</sch:StepId>
+													</sch:routerStepRef>
+													<sch:sequence>
+														<xsl:number value="$splitCounter*10" format="1" />
+													</sch:sequence>
+													<xsl:if test="KAPNAME">
+														<sch:resourceRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="$site" />
+																</sch:Site>
+															</sch:SiteRef>
+															<sch:Resource>
+																<xsl:value-of select="KAPNAME" />
+															</sch:Resource>
+														</sch:resourceRef>
+													</xsl:if>
+													<xsl:if test="not(KAPID=$parentCapacityId)">
+														<sch:resourceErpInternalId>
+															<xsl:value-of select="KAPID" />
+														</sch:resourceErpInternalId>
+													</xsl:if>
+													<sch:splitId>
+														<xsl:value-of select="SPLIT" />
+													</sch:splitId>
+													<sch:plannedQuantity>
+														<xsl:value-of select="floor(MGVRG)" />
+													</sch:plannedQuantity>
+													<me:startDate>
+														<xsl:variable name="startDate" select="FSTAD" />
+														<xsl:variable name="startDateTime" select="FSTAU" />
+														<xsl:choose>
+															<xsl:when test="string($startDateTime)">
+																<xsl:value-of select="concat(substring($startDate, 1, 4), '-', substring($startDate, 5, 2), '-', substring($startDate, 7, 2), 'T', substring($startDateTime, 1, 2), ':',substring($startDateTime, 3, 2),':',substring($startDateTime, 5, 2) )" />
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="concat(substring($startDate, 1, 4), '-', substring($startDate, 5, 2), '-', substring($startDate, 7, 2), 'T00:00:01')" />
+															</xsl:otherwise>
+														</xsl:choose>
+													</me:startDate>
+													<me:endDate>
+														<xsl:variable name="endDate" select="FENDD" />
+														<xsl:variable name="endDateTime" select="FENDU" />
+														<xsl:choose>
+															<xsl:when test="string($endDateTime)">
+																<xsl:value-of select="concat(substring($endDate, 1, 4), '-', substring($endDate, 5, 2), '-', substring($endDate, 7, 2), 'T', substring($endDateTime, 1, 2), ':',substring($endDateTime, 3, 2),':',substring($endDateTime, 5, 2) )" />
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="concat(substring($endDate, 1, 4), '-', substring($endDate, 5, 2), '-', substring($endDate, 7, 2), 'T00:00:01')" />
+															</xsl:otherwise>
+														</xsl:choose>
+													</me:endDate>
+												</sch:ShopOrderSchedule>
+											</xsl:for-each>
+										</xsl:when>
+										<xsl:otherwise>
+											<sch:ShopOrderSchedule>
+												<sch:routerStepRef>
+													<sch:RouterRef>
+														<sch:SiteRef>
+															<sch:Site>
+																<xsl:value-of select="$site" />
+															</sch:Site>
+														</sch:SiteRef>
+														<xsl:choose>
+															<xsl:when test="E1AFREF/MES_ROUTINGID">
+																<sch:Router>
+																	<xsl:call-template name="getId">
+																		<xsl:with-param name="key"
+																			select="E1AFREF/MES_ROUTINGID" />
+																	</xsl:call-template>
+																</sch:Router>
+																<sch:Revision>
+																	<xsl:call-template name="getRevision">
+																		<xsl:with-param name="key"
+																			select="E1AFREF/MES_ROUTINGID" />
+																	</xsl:call-template>
+																</sch:Revision>
+															</xsl:when>
+															<xsl:otherwise>
+																<sch:Router><xsl:value-of select="../../PLNNR" />-<xsl:value-of select="../../PLNAL" /></sch:Router>
+																<sch:Revision>#</sch:Revision>
+															</xsl:otherwise>
+														</xsl:choose>
+														<sch:RouterType>H</sch:RouterType>
+													</sch:RouterRef>
+													<sch:StepId>
+														<xsl:choose>
+															<xsl:when test="E1AFREF/MES_STEPID">
+																<xsl:value-of select="E1AFREF/MES_STEPID" />
+															</xsl:when>
+															<xsl:otherwise>
+															<!-- Enhancement Start -->
+																<!-- <xsl:call-template name="RemoveLeadingZeros"> -->
+																	<!-- <xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[$stepCounter]/VORNR"/>		 -->
+																<!-- </xsl:call-template> -->
+																<xsl:number value="$stepCounter*10" format="1" />
+															<!-- Enhancement End -->
+																
+															</xsl:otherwise>
+														</xsl:choose>
+													</sch:StepId>
+												</sch:routerStepRef>
+												<sch:sequence>10</sch:sequence>
+												<sch:splitId>OPS</sch:splitId>
+												<!-- ////////////////////////RFC 7000039377 START////////////////////-->
+												<sch:plannedQuantity>
+                                                    <xsl:choose>
+                                                        <xsl:when test="IDOC/E1AFKOL/E1AFPOL/E1AFSER/SERNR !=''">
+                                                            <xsl:value-of select="floor(../../BMENGE)" />
+                                                        </xsl:when>
+                                                        <xsl:otherwise>
+                                                            <xsl:value-of select="(../../BMENGE)" />
+                                                        </xsl:otherwise>
+                                                    </xsl:choose>
+                                                </sch:plannedQuantity>
+												<!-- ////////////////////////RFC 7000039377 END////////////////////-->
+												<me:startDate>
+													<!-- <xsl:variable name="startDate" select="FSSBD" /> -->
+													<!-- <xsl:variable name="startDateTime" select="FSSBZ" /> -->
+													<xsl:variable name="startDate" select="SSAVD" />
+													<xsl:variable name="startDateTime" select="SSAVZ" />
+													<xsl:choose>
+														<xsl:when test="string($startDateTime)">
+															<xsl:value-of
+																select="concat(substring($startDate, 1, 4), '-', substring($startDate, 5, 2), '-', substring($startDate, 7, 2), 'T', substring($startDateTime, 1, 2), ':',substring($startDateTime, 3, 2),':',substring($startDateTime, 5, 2) )" />
+														</xsl:when>
+														<xsl:otherwise>
+															<xsl:value-of
+																select="concat(substring($startDate, 1, 4), '-', substring($startDate, 5, 2), '-', substring($startDate, 7, 2), 'T00:00:01')" />
+														</xsl:otherwise>
+													</xsl:choose>
+												</me:startDate>
+												<me:endDate>
+													<!-- <xsl:variable name="endDate" select="FSSAD" /> -->
+													<!-- <xsl:variable name="endDateTime" select="FSSAZ" /> -->
+													<xsl:variable name="endDate" select="SSEDD" />
+													<xsl:variable name="endDateTime" select="SSEDZ" />
+													<xsl:choose>
+														<xsl:when test="string($endDateTime)">
+															<xsl:value-of
+																select="concat(substring($endDate, 1, 4), '-', substring($endDate, 5, 2), '-', substring($endDate, 7, 2), 'T', substring($endDateTime, 1, 2), ':',substring($endDateTime, 3, 2),':',substring($endDateTime, 5, 2) )" />
+														</xsl:when>
+														<xsl:otherwise>
+															<xsl:value-of
+																select="concat(substring($endDate, 1, 4), '-', substring($endDate, 5, 2), '-', substring($endDate, 7, 2), 'T00:00:01')" />
+														</xsl:otherwise>
+													</xsl:choose>
+												</me:endDate>
+											</sch:ShopOrderSchedule>
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:for-each>
+							</sch:ShopOrderScheduleList>
+							<sch:ShopOrderCharacteristicsList>
+								<xsl:for-each select="IDOC/E1AFKOL/E1VCCHR">
+									<sch:ShopOrderCharacteristics>
+										<sch:characteristicName><xsl:value-of select="ATNAM"/></sch:characteristicName>
+										<sch:characteristicValue><xsl:value-of select="ATWRT"/></sch:characteristicValue>
+										<xsl:choose>
+											  <xsl:when test="string(E1VCCHT[LAISO=//SupportedPlant/Language]/ATBEZ)">
+													<sch:characteristicDescription><xsl:value-of select="E1VCCHT[LAISO=//SupportedPlant/Language]/ATBEZ"/></sch:characteristicDescription>
+											  </xsl:when>
+											  <xsl:otherwise>
+													<sch:characteristicDescription><xsl:value-of select="E1VCCHT[LAISO='EN']/ATBEZ"/></sch:characteristicDescription>
+											  </xsl:otherwise>
+										</xsl:choose>
+										<xsl:choose>
+											  <xsl:when test = "string(E1VCCHT[LAISO=//SupportedPlant/Language]/ATWTB)">
+													<sch:characteristicValueDesc><xsl:value-of select="E1VCCHT[LAISO=//SupportedPlant/Language]/ATWTB"/></sch:characteristicValueDesc>      
+											  </xsl:when>
+											  <xsl:otherwise>
+													<sch:characteristicValueDesc><xsl:value-of select="E1VCCHT[LAISO='EN']/ATWTB"/></sch:characteristicValueDesc>     
+											  </xsl:otherwise>
+										</xsl:choose>
+									</sch:ShopOrderCharacteristics>
+								</xsl:for-each>
+						  </sch:ShopOrderCharacteristicsList>
+                        </sch:ShopOrderIn>
+                        <xsl:if test="normalize-space($PO_STATUS_FLAG) = ''">
+							<xsl:if test="IDOC/E1AFKOL/STLAN != '' and IDOC/E1AFKOL/STLAL != ''">
+								<sch:BOMIn>
+									<sch:SiteRef>
+										<sch:Site>
+											<xsl:value-of select="IDOC/E1AFKOL/WERKS"/>
+										</sch:Site>
+									</sch:SiteRef>
+									<sch:Bom>
+										<xsl:call-template name="addBOMName">
+											<xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+											<xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+											<xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+											<xsl:with-param name="usage" select="IDOC/E1AFKOL/STLAN"/>
+											<xsl:with-param name="altBOM" select="IDOC/E1AFKOL/STLAL"/>
+										</xsl:call-template>
+									</sch:Bom>
+									<sch:StatusRef>
+										<sch:Status>201</sch:Status>
+									</sch:StatusRef>
+									<sch:Description>
+										<xsl:call-template name="addItem">
+											<xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+											<xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+											<xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+										</xsl:call-template>
+									</sch:Description>
+									<sch:ErpBom>
+										<xsl:value-of select="IDOC/E1AFKOL/STLNR"/>
+									</sch:ErpBom>
+									<sch:BomType>U</sch:BomType>
+									<sch:EffectivityControl>R</sch:EffectivityControl>
+									<sch:CurrentRevision>true</sch:CurrentRevision>
+									<sch:BomComponentList>
+										<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1RESBL">
+											<xsl:sort select="RSPOS"/>
+											<xsl:variable name="totalQty" select="BDMNG">
+<!-- 	V11 Change											<xsl:choose>
+											    	<xsl:when test="string(ALPGR)">
+											      		<xsl:value-of select="NOMNG" />	                                          		
+											    	</xsl:when>
+												    <xsl:otherwise>
+												      	<xsl:value-of select="BDMNG" />
+												    </xsl:otherwise>
+												</xsl:choose>  -->
+											</xsl:variable>
+											<xsl:variable name="phType" select="DUMPS"/>
+											<xsl:if test = "string(MATNR|MATNR_EXTERNAL|MATNR_LONG) and $totalQty > 0 and number(AFPOS)!=1 and not(POSTP = 2) and not(POSTP=8) and not(POSTP=3)">
+												<sch:BomComponent>
+													<sch:Component>
+														<sch:Item>
+															<xsl:call-template name="addItem">
+																<xsl:with-param name="item" select="MATNR"/>
+																<xsl:with-param name="itemExt" select="MATNR_EXTERNAL"/>
+																<xsl:with-param name="itemLong" select="MATNR_LONG"/>
+															</xsl:call-template>
+														</sch:Item>
+														<sch:Revision>#</sch:Revision>
+													</sch:Component>
+													<sch:Sequence>
+														<xsl:value-of select="string(number(RSPOS)*10)" />
+													</sch:Sequence>
+													<sch:ErpSequence>
+														<xsl:value-of select="number(POSNR)"/>						
+													</sch:ErpSequence>
+													<xsl:variable name="parentRef" select="MRPOS" />
+													<xsl:variable name="parentSeq" select="string(number($parentRef))" />
+													<xsl:choose>
+														<!-- PHANTOM COMPONENT-->
+														<xsl:when test="$phType='X'">
+															<xsl:if test="MRPOS!='0000'">
+																<sch:ParentSequence>
+																	<xsl:value-of select="$parentSeq*10" />
+																</sch:ParentSequence>
+															</xsl:if>
+															<sch:BomComponentType>P</sch:BomComponentType>
+														</xsl:when>
+														<!-- BY PRODUCT -->
+														<xsl:when test="SHKZG='S' and string(KZKUP)=''">
+															<xsl:if test="MRPOS!='0000'">
+																<sch:ParentSequence>
+																	<xsl:value-of select="$parentSeq*10" />
+																</sch:ParentSequence>
+															</xsl:if>
+															<sch:BomComponentType>B</sch:BomComponentType>
+														</xsl:when>
+														<!-- CO PRODUCT -->
+														<xsl:when test="SHKZG='S' and string(KZKUP)='X'">
+															<xsl:if test="MRPOS!='0000'">
+																<sch:ParentSequence>
+																	<xsl:value-of select="$parentSeq*10" />
+																</sch:ParentSequence>
+															</xsl:if>
+															<sch:BomComponentType>C</sch:BomComponentType>
+															<sch:OrderItemNum>
+																<xsl:value-of select="string(number(AFPOS))" />
+															</sch:OrderItemNum>
+														</xsl:when>
+														<!-- NORMAL COMPONENT -->
+														<xsl:otherwise>
+															<xsl:if test="MRPOS!='0000'">
+																<sch:ParentSequence>
+																	<xsl:value-of select="$parentSeq*10" />
+																</sch:ParentSequence>
+															</xsl:if>
+															<sch:BomComponentType>N</sch:BomComponentType>
+														</xsl:otherwise>
+													</xsl:choose>
+													<sch:Enabled>true</sch:Enabled>
+													<sch:Quantity>
+														<xsl:variable name="releasedQty" select="//IDOC/E1AFKOL/BMENGE"/>
+														<xsl:value-of select="$totalQty div $releasedQty"/>
+													</sch:Quantity>
+													<sch:UseItemDefaults>false</sch:UseItemDefaults>
+													<sch:PreAssembled>false</sch:PreAssembled>
+													<xsl:choose>
+														<xsl:when test="MEINS='EA'">
+														</xsl:when>
+														<xsl:otherwise>
+															<sch:AssembleAsRequired>true</sch:AssembleAsRequired>
+														</xsl:otherwise>
+													</xsl:choose>
+													<sch:TestPart>false</sch:TestPart>
+													<sch:CreateTrackableSFC>I</sch:CreateTrackableSFC>
+													<!-- <xsl:if test="string(E1STPUL/EBORT)">
+														<sch:BomRefDesList>
+															<xsl:apply-templates select="E1STPUL" />
+														</sch:BomRefDesList>
+													</xsl:if> -->
+													<sch:BomOperation>
+														<sch:OperationRef>
+															<sch:Operation>
+																<xsl:choose>
+																	<xsl:when test="../E1AFREF/MES_OPERID">
+																		<xsl:call-template name="getId">
+																			<xsl:with-param name="key" select="../E1AFREF/MES_OPERID"/>
+																		</xsl:call-template>
+																	</xsl:when>
+																	<xsl:otherwise>
+																		<xsl:value-of select="../../../PLNNR"/>-<xsl:value-of select="../../../PLNAL"/>-<xsl:value-of select="../../PLNFL"/>-<xsl:value-of select="../VORNR"/>
+																	</xsl:otherwise>
+																</xsl:choose>
+															</sch:Operation>
+															<sch:Revision>#</sch:Revision>
+														</sch:OperationRef>
+														<sch:Quantity>
+															<xsl:variable name="releasedQty" select="//IDOC/E1AFKOL/BMENGE"/>
+															<xsl:value-of select="$totalQty div $releasedQty"/>
+														</sch:Quantity>
+													</sch:BomOperation>
+												</sch:BomComponent>
+											</xsl:if>
+										</xsl:for-each>
+									</sch:BomComponentList>
+									<sch:CustomFieldList>
+										<sch:CustomField>
+											<sch:Attribute>ERP_MATERIAL</sch:Attribute>
+											<sch:Value>
+												<xsl:call-template name="addItem">
+													<xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+													<xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+													<xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+												</xsl:call-template>
+											</sch:Value>
+										</sch:CustomField>
+									</sch:CustomFieldList>
+								</sch:BOMIn>
+							</xsl:if>
+							<xsl:if test="not(IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1AFREF/MES_ROUTINGID)">
+                            <meint:Routing>
+                                <sch:RouterIn>
+                                    <sch:SiteRef>
+                                        <sch:Site>
+                                            <xsl:value-of select="IDOC/E1AFKOL/WERKS"/>
+                                        </sch:Site>
+                                    </sch:SiteRef>
+									<sch:Item>
+										<xsl:value-of select="IDOC/E1AFKOL/MATNR"/>
+									</sch:Item>
+                                    <xsl:variable name="materialNumber">
+                                         <xsl:call-template name="trimItemLeadingZeros">
+                                             <xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+                                             <xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+                                             <xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+                                         </xsl:call-template>
+                                            </xsl:variable>
+                                    <sch:Router>
+                                        <xsl:value-of select="IDOC/E1AFKOL/PLNNR"/>-<xsl:value-of select="IDOC/E1AFKOL/PLNAL"/>
+                                    </sch:Router>
+                                    <sch:RouterType>H</sch:RouterType>
+                                    <sch:Description>
+                                        <!-- <xsl:value-of select="IDOC/E1AFKOL/PLNNR"/>-<xsl:value-of select="IDOC/E1AFKOL/PLNAL"/>-->
+                                        <xsl:call-template name="addItem">
+                                            <xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+                                            <xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+                                            <xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+                                        </xsl:call-template>
+                                    </sch:Description>
+                                    <sch:StatusRef>
+                                        <sch:Status>201</sch:Status>
+                                    </sch:StatusRef>
+                                    <sch:EffectivityControl>R</sch:EffectivityControl>
+                                    <sch:CurrentRevision>true</sch:CurrentRevision>
+                                    <sch:TemporaryRouter>false</sch:TemporaryRouter>
+<!-- V12  Relaxed Routing Flow Indicator -->		
+								<xsl:if test="not(IDOC/E1AFKOL/E1AFPOL/E1AFSER)">	
+										<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL">
+											<xsl:choose>
+												<xsl:when test="position() =1 ">
+													<sch:RelaxedFlow>true</sch:RelaxedFlow>
+												</xsl:when>
+												<xsl:otherwise>
+													<sch:RelaxedFlow>false</sch:RelaxedFlow>
+												</xsl:otherwise>
+											</xsl:choose>
+										</xsl:for-each>
+									</xsl:if>
+								
+                                    <sch:EntryRouterStepRef>
+                                        <sch:RouterRef>
+                                            <sch:Router>
+                                                <xsl:value-of select="IDOC/E1AFKOL/PLNNR"/>-<xsl:value-of select="IDOC/E1AFKOL/PLNAL"/>
+                                            </sch:Router>
+                                            <sch:RouterType>H</sch:RouterType>
+                                        </sch:RouterRef>
+                                        <!-- <sch:StepId> -->
+									<!-- Enhancement Start -->
+										<!-- <xsl:for-each select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL"> -->
+											<!-- <xsl:sort select="VORNR"/> -->
+											<!-- <xsl:if test = "position()=1">										 -->
+												<!-- <xsl:call-template name="RemoveLeadingZeros"> -->
+													<!-- <xsl:with-param name="sTmp" select="VORNR"/>										 -->
+												<!-- </xsl:call-template> -->
+											<!-- </xsl:if> -->
+										<!-- </xsl:for-each>										 -->
+										<!-- xsl:call-template name="RemoveLeadingZeros">
+										<xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[1]/VORNR"/>		
+										</xsl:call-template -->
+										<!-- xsl:number value="$stepCounter*10" format="1" /-->
+									<!-- Enhancement End -->
+										<!-- </sch:StepId> -->
+										<xsl:variable name="testFirstStepBranching"
+												select="//E1AFFLL[FLGAT = 1 and VORNR1 = //E1AFFLL[FLGAT = 0]/E1AFVOL[1]/VORNR][1]" />
+										<xsl:choose>
+											<xsl:when test="$testFirstStepBranching">
+												<sch:StepId>
+													<xsl:number
+														value="1000 * $testFirstStepBranching/PLNFL" />
+												</sch:StepId>
+											</xsl:when>
+											<xsl:otherwise>
+												<sch:StepId>10</sch:StepId>
+											</xsl:otherwise>
+										</xsl:choose>
+                                    </sch:EntryRouterStepRef>
+                                    
+                                    <sch:RouterStepList>
+										<xsl:apply-templates select="//E1AFFLL[FLGAT &lt; 2]/E1AFVOL[E1JSTVL[last()]/STAT!='I0013']" mode="router" />
+										
+									</sch:RouterStepList>
+
+                                    <sch:CustomFieldList>
+                                        <sch:CustomField>
+                                           <sch:Attribute>ERP_MATERIAL</sch:Attribute>
+                                           <sch:Value>
+                                                 <xsl:call-template name="addItem">
+                                                     <xsl:with-param name="item" select="IDOC/E1AFKOL/MATNR"/>
+                                                     <xsl:with-param name="itemExt" select="IDOC/E1AFKOL/MATNR_EXTERNAL"/>
+                                                     <xsl:with-param name="itemLong" select="IDOC/E1AFKOL/MATNR_LONG"/>
+                                                 </xsl:call-template>
+                                           </sch:Value>
+                                        </sch:CustomField>
+                                    </sch:CustomFieldList>
+                                </sch:RouterIn>
+                                <sch:OperationListIn>
+                                    <xsl:for-each select="IDOC/E1AFKOL/E1AFFLL">
+                                        <xsl:if test="FLGAT &lt; 2">
+                                            <xsl:for-each select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013']">
+                                                <sch:Operation>
+                                                    <sch:Operation>
+                                                        <xsl:value-of select="//IDOC/E1AFKOL/PLNNR"/>-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL"/>-<xsl:value-of select="../PLNFL"/>-<xsl:value-of select="VORNR"/>
+                                                    </sch:Operation>
+                                                    <sch:Revision>A</sch:Revision>
+                                                    <sch:Description>
+                                                        <xsl:value-of select="LTXA1"/>
+                                                    </sch:Description>
+                                                    <sch:CurrentRevision>true</sch:CurrentRevision>
+                                                    <sch:MaxLoop>1</sch:MaxLoop>
+                                                    <sch:ResourceTypeRef>
+                                                        <sch:ResourceType>DEFAULT</sch:ResourceType>
+                                                    </sch:ResourceTypeRef>
+                                                    <sch:StatusRef>
+                                                        <sch:Status>201</sch:Status>
+                                                    </sch:StatusRef>
+													<sch:ErpInternalID>
+														<xsl:value-of select="ARBID"/>
+													</sch:ErpInternalID>
+													<sch:ControlKeyRef>
+														<sch:ControlKey>
+															<xsl:value-of select="STEUS" />
+														</sch:ControlKey>
+													</sch:ControlKeyRef>
+                                                    <sch:Type>N</sch:Type>
+													<sch:EffectivityControl>R</sch:EffectivityControl>
+														<xsl:choose>
+														<xsl:when test="ARBPL">
+																<sch:ErpWorkCenterRef>
+																	<sch:WorkCenter>
+																	<xsl:value-of select="ARBPL" />
+																	</sch:WorkCenter>
+																</sch:ErpWorkCenterRef>
+																<sch:ReportingCenterRef>
+																	<sch:WorkCenter>
+																	<xsl:value-of select="ARBPL" />
+																	</sch:WorkCenter>
+																</sch:ReportingCenterRef>
+															</xsl:when>
+															<xsl:otherwise>
+																<sch:ErpWorkCenterRef>
+																<sch:WorkCenter>ERP_ID:<xsl:value-of select="ARBID" /></sch:WorkCenter>
+																</sch:ErpWorkCenterRef>
+																<sch:ReportingCenterRef>
+																<sch:WorkCenter>ERP_ID:<xsl:value-of select="ARBID" /></sch:WorkCenter>
+																</sch:ReportingCenterRef>
+															</xsl:otherwise>
+														</xsl:choose>
+                                                </sch:Operation>
+                                            </xsl:for-each>
+                                        </xsl:if>
+                                        <xsl:if test="FLAGAT &gt; 1">
+                                            <xsl:message terminate="yes">
+												<xsl:text>Only standard and parallel routing sequences are supported.</xsl:text>
+											</xsl:message>
+                                        </xsl:if>
+                                    </xsl:for-each>
+                                </sch:OperationListIn>
+                                <!--
+                                <xsl:if test="boolean(IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1AFDOC)">
+                                    <meint:AttachmentList>
+                                        <xsl:for-each select="IDOC/E1AFKOL/E1AFFLL">
+                                            <xsl:sort select="PLNFL"/>
+                                            <xsl:if test="FLGAT = 0">
+                                                <xsl:for-each select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013']">
+                                                    <xsl:sort select="VORNR"/>
+                                                    <xsl:if test="E1AFDOC">
+                                                        <meint:ErpAttachment>
+                                                            <me:OperationRef>
+                                                                <me:Operation><xsl:value-of select="//IDOC/E1AFKOL/PLNNR"/>-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL"/>-<xsl:value-of select="//IDOC/E1AFKOL/E1AFFLL/PLNFL"/>-<xsl:value-of select="VORNR"/></me:Operation>
+                                                                <me:Revision>#</me:Revision>
+                                                            </me:OperationRef>
+                                                            <meint:AttachedToList>
+                                                                <xsl:for-each select="E1AFDOC">
+                                                                    <meint:AttachedTo>
+                                                                        <meint:Sequence><xsl:number value="PSNFH" format="1"/></meint:Sequence>
+                                                                        <me:WorkInstructionRef>
+                                                                            <me:WorkInstruction><xsl:value-of select="concat(DOKNR,'-', DOKTL, '-', DOKAR)"/></me:WorkInstruction>
+                                                                            <me:Revision><xsl:value-of select="DOKVR"/></me:Revision>
+                                                                        </me:WorkInstructionRef>
+                                                                    </meint:AttachedTo>
+                                                                </xsl:for-each>
+                                                            </meint:AttachedToList>
+                                                        </meint:ErpAttachment>
+                                                    </xsl:if>
+                                                </xsl:for-each>
+                                            </xsl:if>
+                                        </xsl:for-each>
+                                    </meint:AttachmentList>
+
+
+                                </xsl:if>-->
+                            </meint:Routing>
+						</xsl:if>
+					</xsl:if>
+				<!-- Start Enhancement - removed this comments to make Auto-release of Shop Order -->
+	                <sch:ShopOrderReleaseInfo>
+	                    <sch:Release>all</sch:Release>
+	                </sch:ShopOrderReleaseInfo>
+				<!-- End Enhancement - removed this comments to make Auto-release of Shop Order -->
+                    <!-- Alternate Component -->
+					<meint:ErpAlternateComponentListIn>
+						<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1RESBL">
+							<xsl:sort select="RSPOS" />
+							<xsl:variable name="releasedQty" select="//IDOC/E1AFKOL/BMENGE"/>
+							<!-- V11 Change <xsl:variable name="totalQty" select="NOMNG div $releasedQty"/> -->
+							<xsl:variable name="totalQty" select="BDMNG div $releasedQty"/>
+							<xsl:variable name="phType" select="DUMPS" />
+							<xsl:if test="string(MATNR|MATNR_EXTERNAL|MATNR_LONG) and $totalQty > 0 and number(AFPOS)!=1">
+								<meint:ErpAlternateComponentIn>
+									<meint:Component>
+										<sch:Item>
+											<xsl:call-template name="addItem">
+												<xsl:with-param name="item" select="MATNR" />
+												<xsl:with-param name="itemExt" select="MATNR_EXTERNAL" />
+												<xsl:with-param name="itemLong" select="MATNR_LONG" />
+											</xsl:call-template>
+										</sch:Item>
+										<sch:Revision>#</sch:Revision>
+									</meint:Component>
+									<meint:Sequence>
+										<xsl:value-of select="string(number(RSPOS)*10)" />
+									</meint:Sequence>
+									<meint:AlternateItemGroup>
+										<xsl:value-of select="string(ALPGR)" />
+									</meint:AlternateItemGroup>
+									<meint:AlternateItemRankingOrder>
+										<xsl:value-of select="number(ALPRF)" />
+									</meint:AlternateItemRankingOrder>
+								</meint:ErpAlternateComponentIn>
+							</xsl:if>
+						</xsl:for-each>
+					</meint:ErpAlternateComponentListIn>
+						<!-- Data Collection-->
+						<!-- Start enhancement Suppressing creation of ERP DC Group in SAP ME -->
+						<!-- 
+						<meint:ErpDataCollectionGroupListIn>
+							<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL">
+								<xsl:sort select="PLNFL" />
+								<xsl:if test="FLGAT = 0">
+									<xsl:for-each select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013']">
+										<xsl:sort select="VORNR" />
+										<xsl:variable name="seqCounter" select="position()" />
+										<xsl:if test="E1QAMVL">
+											<xsl:variable name="dcgroup">
+												<xsl:value-of select="../../AUFNR" />-<xsl:number value="$seqCounter*10" format="1" />
+											</xsl:variable>
+											<meint:ErpDataCollectionGroupIn>
+												<meint:CollectDataAt>ANYTIME</meint:CollectDataAt>
+												<meint:CollectType>SFC</meint:CollectType>
+												<meint:DcGroup>
+													<xsl:value-of select="$dcgroup" />
+												</meint:DcGroup>
+												<meint:Revision>A</meint:Revision>
+												<meint:CurrentRevision>true</meint:CurrentRevision>
+												<meint:SiteRef>
+													<sch:Site>
+														<xsl:value-of select="../../WERKS" />
+													</sch:Site>
+												</meint:SiteRef>
+												<meint:Status>RELEASABLE</meint:Status>
+												<meint:AuthenticationRequired>false</meint:AuthenticationRequired>
+												<meint:PassFailGroup>false</meint:PassFailGroup>
+												<meint:Description>
+													<xsl:value-of select="$dcgroup" />
+												</meint:Description>
+												<meint:CollectMethod>MANUAL_SINGLE</meint:CollectMethod>
+												<meint:Erp>true</meint:Erp>
+												<meint:ErpInspection>true</meint:ErpInspection>
+												<meint:DcParameterList>
+													<xsl:for-each select="E1QAMVL[CHAR_TYPE!='02']">
+														<xsl:variable name="dcParameterSeqCounter" select="position()" />
+														<meint:DcParameters>
+
+
+
+															<meint:ParameterName>
+																<xsl:value-of select="INSPCHAR" />
+															</meint:ParameterName>
+															<meint:Description>
+																<xsl:value-of select="CHAR_DESCR" />
+															</meint:Description>
+															<meint:Status>ENABLED</meint:Status>
+															<meint:Units>
+																<xsl:value-of select="MEAS_UNIT" />
+
+															</meint:Units>
+															<meint:RequiredDataEntries>
+																<xsl:value-of select="SCOPE" />
+															</meint:RequiredDataEntries>
+															<meint:Sequence>
+																<xsl:number value="$dcParameterSeqCounter*10" format="1" />
+															</meint:Sequence>
+															<xsl:if test="CHAR_TYPE='01'">
+																<meint:DataType>N</meint:DataType>
+																<meint:SoftLimitCheck>true</meint:SoftLimitCheck>
+																<meint:MinValue>
+																	<xsl:value-of select="string(number(translate(LW_TOL_LMT, ',' , '.')))" />
+																</meint:MinValue>
+																<meint:MaxValue>
+																	<xsl:value-of select="string(number(translate(UP_TOL_LMT, ',' , '.')))" />
+																</meint:MaxValue>
+															</xsl:if>
+															<xsl:if test="CHAR_TYPE='02'">
+																<meint:DataType>T</meint:DataType>
+															</xsl:if>
+															<xsl:if test="CHAR_TYPE='03'">
+																<meint:DataType>B</meint:DataType>
+																<meint:BooleanZeroValue>REJECT</meint:BooleanZeroValue>
+																<meint:BooleanOneValue>ACCEPT</meint:BooleanOneValue>
+															</xsl:if>
+															<xsl:if test="CHAR_TYPE='04'">
+																<meint:DataType>N</meint:DataType>
+																<meint:SoftLimitCheck>true</meint:SoftLimitCheck>
+															</xsl:if>
+															<meint:SingleResource>
+																<xsl:value-of select="SINGLE_RES" />
+															</meint:SingleResource>
+															<meint:QmCharType>
+																<xsl:value-of select="CHAR_TYPE" />
+															</meint:QmCharType>
+															<xsl:choose>
+																<xsl:when test="FEHLREC='X'">
+																	<meint:QmCritical>true</meint:QmCritical>
+																</xsl:when>
+																<xsl:otherwise>
+																	<meint:QmCritical>false</meint:QmCritical>
+																</xsl:otherwise>
+															</xsl:choose>
+														</meint:DcParameters>
+													</xsl:for-each>
+												</meint:DcParameterList>
+												<meint:AttachmentList>
+													<meint:DataCollectionGroupAttachmentPoint>
+														<meint:ShopOrderRef>
+															<sch:ShopOrder>
+																<xsl:value-of select="../../AUFNR" />
+															</sch:ShopOrder>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="../../WERKS" />
+																</sch:Site>
+															</sch:SiteRef>
+														</meint:ShopOrderRef>
+														<meint:RouterRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="../../WERKS" />
+																</sch:Site>
+															</sch:SiteRef>
+															<sch:Router>
+																<xsl:choose>
+																	<xsl:when test="E1AFREF/MES_ROUTINGID">
+																		<xsl:call-template name="getId">
+																			<xsl:with-param name="key" select="E1AFREF/MES_ROUTINGID"/>
+																		</xsl:call-template>
+																	</xsl:when>
+																	<xsl:otherwise>
+																		<xsl:value-of select="../../PLNNR" />-<xsl:value-of select="../../PLNAL" />
+																	</xsl:otherwise>
+																</xsl:choose>
+															</sch:Router>
+															<sch:Revision>A</sch:Revision>
+															<sch:RouterType>H</sch:RouterType>
+														</meint:RouterRef>
+														<meint:RouterStepRef>
+															<sch:RouterRef>
+																<sch:SiteRef>
+																	<sch:Site>
+																		<xsl:value-of select="../../WERKS" />
+																	</sch:Site>
+																</sch:SiteRef>
+																<sch:Router>
+																	<xsl:choose>
+																		<xsl:when test="E1AFREF/MES_ROUTINGID">
+																			<xsl:call-template name="getId">
+																				<xsl:with-param name="key" select="E1AFREF/MES_ROUTINGID"/>
+																			</xsl:call-template>
+																		</xsl:when>
+																		<xsl:otherwise>
+																			<xsl:value-of select="../../PLNNR" />-<xsl:value-of select="../../PLNAL" />
+																		</xsl:otherwise>
+																	</xsl:choose>
+																</sch:Router>
+																<sch:Revision>A</sch:Revision>
+																<sch:RouterType>H</sch:RouterType>
+															</sch:RouterRef>
+															<sch:StepId>
+																<xsl:choose>
+																	<xsl:when test="E1AFREF/MES_STEPID">
+																		<xsl:value-of select="E1AFREF/MES_STEPID" />
+																	</xsl:when>
+																	<xsl:otherwise>
+																	-->
+																	<!-- Enhancement Start -->
+																	<!--
+																<xsl:call-template name="RemoveLeadingZeros">
+														<xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[$seqCounter]/VORNR"/>		
+															</xsl:call-template>
+																	-->
+																	<!-- xsl:number value="$seqCounter*10" format="1" / -->
+																	<!-- Enhancement End -->
+																	<!--	
+																	</xsl:otherwise>
+																</xsl:choose>
+															</sch:StepId>
+														</meint:RouterStepRef>
+													</meint:DataCollectionGroupAttachmentPoint>
+												</meint:AttachmentList>
+											</meint:ErpDataCollectionGroupIn>
+										</xsl:if>
+									</xsl:for-each>
+								</xsl:if>
+							</xsl:for-each>
+						</meint:ErpDataCollectionGroupListIn>
+						  -->
+						<!-- End enhancement Suppressing creation of ERP DC Group in SAP ME -->
+						<meint:ErpWorkInstructionListIn>
+							<xsl:for-each select="IDOC/E1AFKOL/E1AFDFH/E1AFDHO">
+								<sch:WorkInstructionIn>
+									<sch:SiteRef>
+										<sch:Site>
+											<xsl:value-of select="../../WERKS" />
+										</sch:Site>
+									</sch:SiteRef>
+									<sch:WorkInstruction>
+										<xsl:call-template name="addWorkInstructionName">
+											<xsl:with-param name="docName" select="../DOKNR" />
+											<xsl:with-param name="docType" select="../DOKAR" />
+											<xsl:with-param name="docPart" select="../DOKTL" />
+											<xsl:with-param name="docOriginal" select="ORIGINAL" />
+										</xsl:call-template>
+									</sch:WorkInstruction>
+									<sch:Revision>
+										<xsl:value-of select="../DOKVR" />
+									</sch:Revision>
+									<sch:ErpFilename><xsl:value-of select="FILENAME" /></sch:ErpFilename>
+									<sch:Url><xsl:value-of select="URL" /></sch:Url>
+									<xsl:choose>
+										<xsl:when test="string(DESCRIPTION)!=''">
+											<sch:Description>
+												<xsl:value-of select="DESCRIPTION" />
+											</sch:Description>
+										</xsl:when>
+										<xsl:otherwise>
+											<sch:Description>
+												<xsl:value-of select="../DKTXT" />
+											</sch:Description>
+										</xsl:otherwise>
+									</xsl:choose>
+									<sch:StatusRef>
+										<sch:Status>201</sch:Status>
+									</sch:StatusRef>
+									<sch:Required>true</sch:Required>
+									<sch:CurrentRevision>true</sch:CurrentRevision>
+									<sch:TrackViewing>false</sch:TrackViewing>
+									<sch:ChangeAlert>false</sch:ChangeAlert>
+									<sch:NewWindow>false</sch:NewWindow>
+									<sch:SimpleInstruction>false</sch:SimpleInstruction>
+									<sch:AttachmentList>
+										<sch:WorkInstructionAttachmentPoint>
+											<sch:ShopOrderRef>
+												<sch:ShopOrder>
+													<xsl:value-of select="../../AUFNR" />
+												</sch:ShopOrder>
+												<sch:SiteRef>
+													<sch:Site>
+														<xsl:value-of select="../../WERKS" />
+													</sch:Site>
+												</sch:SiteRef>
+											</sch:ShopOrderRef>
+										</sch:WorkInstructionAttachmentPoint>
+									</sch:AttachmentList>
+								</sch:WorkInstructionIn>
+							</xsl:for-each>
+							<xsl:for-each select="IDOC/E1AFKOL/E1AFFLL[FLGAT &lt; 2]/E1AFVOL">
+								<xsl:variable name="stepIdCounter" select="count(preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013'] | self::E1AFVOL)" />
+								<xsl:for-each select="E1AFDFO/E1AFDOO">
+									<sch:WorkInstructionIn>
+										<sch:SiteRef>
+											<sch:Site>
+												<xsl:value-of select="../../../../WERKS" />
+											</sch:Site>
+										</sch:SiteRef>
+										<sch:WorkInstruction>
+											<xsl:call-template name="addWorkInstructionName">
+												<xsl:with-param name="docName" select="../DOKNR" />
+												<xsl:with-param name="docType" select="../DOKAR" />
+												<xsl:with-param name="docPart" select="../DOKTL" />
+												<xsl:with-param name="docOriginal" select="ORIGINAL" />
+											</xsl:call-template>
+										</sch:WorkInstruction>
+										<sch:Revision>
+											<xsl:value-of select="../DOKVR" />
+										</sch:Revision>
+										<sch:ErpFilename>
+											<xsl:value-of select="FILENAME" />
+										</sch:ErpFilename>
+										<sch:Url>
+											<xsl:value-of select="URL" />
+										</sch:Url>
+										<xsl:choose>
+											<xsl:when test="string(DESCRIPTION)!=''">
+												<sch:Description>
+													<xsl:value-of select="DESCRIPTION" />
+												</sch:Description>
+											</xsl:when>
+											<xsl:otherwise>
+												<sch:Description>
+													<xsl:value-of select="../DKTXT" />
+												</sch:Description>
+											</xsl:otherwise>
+										</xsl:choose>
+										<sch:StatusRef>
+											<sch:Status>201</sch:Status>
+										</sch:StatusRef>
+										<sch:Required>true</sch:Required>
+										<sch:CurrentRevision>true</sch:CurrentRevision>
+										<sch:TrackViewing>false</sch:TrackViewing>
+										<sch:ChangeAlert>false</sch:ChangeAlert>
+										<sch:NewWindow>false</sch:NewWindow>
+										<sch:SimpleInstruction>false</sch:SimpleInstruction>
+										<sch:AttachmentList>
+											<sch:WorkInstructionAttachmentPoint>
+												<sch:ShopOrderRef>
+													<sch:ShopOrder>
+														<xsl:value-of select="../../../../AUFNR" />
+													</sch:ShopOrder>
+													<sch:SiteRef>
+														<sch:Site>
+															<xsl:value-of select="../../../../WERKS" />
+														</sch:Site>
+													</sch:SiteRef>
+												</sch:ShopOrderRef>
+												<xsl:choose>
+													<xsl:when test="../RSPOS">
+														<sch:BomComponentRef>
+															<sch:BomRef>
+																<sch:Bom>
+																	<xsl:call-template name="addBOMName">
+																		<xsl:with-param name="item" select="/*/IDOC/E1AFKOL/MATNR" />
+																		<xsl:with-param name="itemExt" select="/*/IDOC/E1AFKOL/MATNR_EXTERNAL" />
+																		<xsl:with-param name="itemLong" select="/*/IDOC/E1AFKOL/MATNR_LONG" />
+																		<xsl:with-param name="usage" select="/*/IDOC/E1AFKOL/STLAN" />
+																		<xsl:with-param name="altBOM" select="/*/IDOC/E1AFKOL/STLAL" />
+																	</xsl:call-template>
+																</sch:Bom>
+																<sch:BomType>U</sch:BomType>
+															</sch:BomRef>
+															<sch:Component>
+																<sch:Item>
+																	<xsl:call-template name="addItem">
+																		<xsl:with-param name="item" select="/*/IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1RESBL[RSPOS=current()/../RSPOS]/MATNR" />
+																		<xsl:with-param name="itemExt" select="/*/IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1RESBL[RSPOS=current()/../RSPOS]/MATNR_EXTERNAL" />
+																		<xsl:with-param name="itemLong" select="/*/IDOC/E1AFKOL/E1AFFLL/E1AFVOL/E1RESBL[RSPOS=current()/../RSPOS]/MATNR_LONG" />
+																	</xsl:call-template>
+																</sch:Item>
+																<sch:Revision>#</sch:Revision>
+															</sch:Component>
+															<sch:Sequence>
+																<xsl:value-of select="string(number(../RSPOS)*10)" />
+															</sch:Sequence>
+														</sch:BomComponentRef>
+													</xsl:when>
+													<xsl:otherwise>
+														<sch:RouterRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="../../../../WERKS" />
+																</sch:Site>
+															</sch:SiteRef>
+															<sch:Router>
+																<xsl:choose>
+																	<xsl:when test="../../E1AFREF/MES_ROUTINGID">
+																		<xsl:call-template name="getId">
+																			<xsl:with-param name="key" select="../../E1AFREF/MES_ROUTINGID"/>
+																		</xsl:call-template>
+																	</xsl:when>
+																	<xsl:otherwise>
+																		<xsl:value-of select="//IDOC/E1AFKOL/PLNNR" />-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL" />
+																	</xsl:otherwise>
+																</xsl:choose>
+															</sch:Router>
+															<sch:Revision>A</sch:Revision>
+															<sch:RouterType>H</sch:RouterType>
+														</sch:RouterRef>
+														<sch:RouterStepRef>
+															<sch:StepId>
+																<xsl:choose>
+																	<xsl:when test="../../E1AFREF/MES_STEPID">
+																		<xsl:value-of select="../../E1AFREF/MES_STEPID" />
+																	</xsl:when>
+																	<xsl:otherwise>
+																		<!-- Enhancement Start -->
+																		<!-- <xsl:call-template name="RemoveLeadingZeros"> -->
+																		       <!-- <xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[$stepIdCounter]/VORNR"/>		 -->
+																		<!-- </xsl:call-template> -->
+																		<xsl:number value="$stepIdCounter*10" format="1" />
+																		<!-- Enhancement End -->
+																	</xsl:otherwise>
+																</xsl:choose>
+															</sch:StepId>
+															<sch:RouterRef>
+																<sch:SiteRef>
+																	<sch:Site>
+																		<xsl:value-of select="../../../../WERKS" />
+																	</sch:Site>
+																</sch:SiteRef>
+																<sch:Router>
+																	<xsl:choose>
+																		<xsl:when test="../../E1AFREF/MES_ROUTINGID">
+																			<xsl:call-template name="getId">
+																				<xsl:with-param name="key" select="../../E1AFREF/MES_ROUTINGID"/>
+																			</xsl:call-template>
+																		</xsl:when>
+																		<xsl:otherwise>
+																			<xsl:value-of select="//IDOC/E1AFKOL/PLNNR" />-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL" />
+																		</xsl:otherwise>
+																	</xsl:choose>
+																</sch:Router>
+																<sch:Revision>A</sch:Revision>
+																<sch:RouterType>H</sch:RouterType>
+															</sch:RouterRef>
+														</sch:RouterStepRef>
+													</xsl:otherwise>
+												</xsl:choose>
+											</sch:WorkInstructionAttachmentPoint>
+										</sch:AttachmentList>
+									</sch:WorkInstructionIn>
+								</xsl:for-each>
+								<xsl:for-each select="E1AFDOC/E1AFDPO">
+									<sch:WorkInstructionIn>
+										<sch:SiteRef>
+											<sch:Site>
+												<xsl:value-of select="../../../../WERKS" />
+											</sch:Site>
+										</sch:SiteRef>
+										<sch:WorkInstruction>
+											<xsl:call-template name="addWorkInstructionName">
+												<xsl:with-param name="docName" select="../DOKNR" />
+												<xsl:with-param name="docType" select="../DOKAR" />
+												<xsl:with-param name="docPart" select="../DOKTL" />
+												<xsl:with-param name="docOriginal" select="ORIGINAL" />
+											</xsl:call-template>
+										</sch:WorkInstruction>
+										<sch:Revision>
+											<xsl:value-of select="../DOKVR" />
+										</sch:Revision>
+										<sch:ErpFilename>
+											<xsl:value-of select="FILENAME" />
+										</sch:ErpFilename>
+										<sch:Url>
+											<xsl:value-of select="URL" />
+										</sch:Url>
+										<xsl:choose>
+											<xsl:when test="string(DESCRIPTION)!=''">
+												<sch:Description>
+													<xsl:value-of select="DESCRIPTION" />
+												</sch:Description>
+											</xsl:when>
+											<xsl:otherwise>
+												<sch:Description>
+													<xsl:value-of select="../FHKTX" />
+												</sch:Description>
+											</xsl:otherwise>
+										</xsl:choose>
+										<sch:StatusRef>
+											<sch:Status>201</sch:Status>
+										</sch:StatusRef>
+										<sch:Required>true</sch:Required>
+										<sch:CurrentRevision>true</sch:CurrentRevision>
+										<sch:TrackViewing>false</sch:TrackViewing>
+										<sch:ChangeAlert>false</sch:ChangeAlert>
+										<sch:NewWindow>false</sch:NewWindow>
+										<sch:SimpleInstruction>false</sch:SimpleInstruction>
+										<sch:AttachmentList>
+											<sch:WorkInstructionAttachmentPoint>
+												<sch:ShopOrderRef>
+													<sch:ShopOrder>
+														<xsl:value-of select="../../../../AUFNR" />
+													</sch:ShopOrder>
+													<sch:SiteRef>
+														<sch:Site>
+															<xsl:value-of select="../../../../WERKS" />
+														</sch:Site>
+													</sch:SiteRef>
+												</sch:ShopOrderRef>
+												<sch:RouterRef>
+													<sch:SiteRef>
+														<sch:Site>
+															<xsl:value-of select="../../../../WERKS" />
+														</sch:Site>
+													</sch:SiteRef>
+													<sch:Router>
+														<xsl:choose>
+															<xsl:when test="../../E1AFREF/MES_ROUTINGID">
+																<xsl:call-template name="getId">
+																	<xsl:with-param name="key" select="../../E1AFREF/MES_ROUTINGID"/>
+																</xsl:call-template>
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="//IDOC/E1AFKOL/PLNNR" />-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL" />
+															</xsl:otherwise>
+														</xsl:choose>
+													</sch:Router>
+													<sch:Revision>A</sch:Revision>
+													<sch:RouterType>H</sch:RouterType>
+												</sch:RouterRef>
+												<sch:RouterStepRef>
+													<sch:StepId>
+														<xsl:choose>
+															<xsl:when test="../../E1AFREF/MES_STEPID">
+																<xsl:value-of select="../../E1AFREF/MES_STEPID" />
+															</xsl:when>
+															<xsl:otherwise>
+															<!-- Enhancement Start -->
+																<!-- <xsl:call-template name="RemoveLeadingZeros"> -->
+																	<!-- <xsl:with-param name="sTmp" select="//IDOC/E1AFKOL/E1AFFLL/E1AFVOL[$stepIdCounter]/VORNR"/>		 -->
+																<!-- </xsl:call-template> -->
+																<xsl:number value="$stepIdCounter*10" format="1" />
+															<!-- Enhancement End -->
+															</xsl:otherwise>
+														</xsl:choose>
+													</sch:StepId>
+													<sch:RouterRef>
+														<sch:SiteRef>
+															<sch:Site>
+																<xsl:value-of select="../../../../WERKS" />
+															</sch:Site>
+														</sch:SiteRef>
+														<sch:Router>
+															<xsl:choose>
+																<xsl:when test="../../E1AFREF/MES_ROUTINGID">
+																	<xsl:call-template name="getId">
+																		<xsl:with-param name="key" select="../../E1AFREF/MES_ROUTINGID"/>
+																	</xsl:call-template>
+																</xsl:when>
+																<xsl:otherwise>
+																	<xsl:value-of select="//IDOC/E1AFKOL/PLNNR" />-<xsl:value-of select="//IDOC/E1AFKOL/PLNAL" />
+																</xsl:otherwise>
+															</xsl:choose>
+														</sch:Router>
+														<sch:Revision>A</sch:Revision>
+														<sch:RouterType>H</sch:RouterType>
+													</sch:RouterRef>
+												</sch:RouterStepRef>
+											</sch:WorkInstructionAttachmentPoint>
+										</sch:AttachmentList>
+									</sch:WorkInstructionIn>
+								</xsl:for-each>
+							</xsl:for-each>
+						</meint:ErpWorkInstructionListIn>
+                        <xsl:for-each select="IDOC/E1AFKOL/E1AFPOL[POSNR='0001']">
+                            <xsl:choose>
+                                <xsl:when test="KDAUF!=''">
+                                      <meint:erpOrderType>MAKE_TO_ORDER</meint:erpOrderType>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                      <meint:erpOrderType>MAKE_TO_ORDER</meint:erpOrderType>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:for-each>
+                    </meint:ProductionOrder>
+                </meint:ProductionOrderUpdateRequest_sync>
+            </soapenv:Body>
+        </soapenv:Envelope>
+    </xsl:template>
+
+    <xsl:template match="E1AFVOL" mode="router">
+		<!--Variables for current and next reporting step -->
+		<xsl:variable name="currentRepStep" select="VORNR" />
+		<xsl:variable name="nextRepStep" select="following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]/VORNR" />
+
+		<xsl:choose>
+			<xsl:when test="../FLGAT = 0 and not(../../E1AFFLL[FLGAT=1 and VORNR1 &lt;= $currentRepStep and VORNR2 &gt;= $currentRepStep])">
+				<xsl:call-template name="addNormalRoutingStep">
+					<xsl:with-param name="currentRepStep" select="$currentRepStep" />
+					<xsl:with-param name="nextRepStep" select="$nextRepStep" />
+					<xsl:with-param name="addNextStepIfExists" select="true()" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:when
+				test="../FLGAT = 0 and //E1AFFLL[FLGAT=1 and VORNR1 = $currentRepStep and 
+							not(//E1AFFLL[FLGAT=1 and VORNR1 &lt; $currentRepStep and VORNR2 &gt; $currentRepStep])]">
+				<xsl:call-template name="addSimGroupStep">
+					<xsl:with-param name="parallelSeqId" select="../../E1AFFLL[FLGAT=1 and VORNR1 = $currentRepStep][1]/PLNFL" />
+				</xsl:call-template>
+				<xsl:call-template name="addNormalRoutingStep">
+					<xsl:with-param name="currentRepStep" select="$currentRepStep" />
+					<xsl:with-param name="nextRepStep" select="$nextRepStep" />
+					<xsl:with-param name="addNextStepIfExists" select="false()" />
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="addNormalRoutingStep">
+					<xsl:with-param name="currentRepStep" select="$currentRepStep" />
+					<xsl:with-param name="nextRepStep" select="$nextRepStep" />
+					<xsl:with-param name="addNextStepIfExists" select="false()" />
+				</xsl:call-template>
+			</xsl:otherwise>
+
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template name="addNormalRoutingStep">
+		<xsl:param name="currentRepStep" />
+		<xsl:param name="nextRepStep" />
+		<xsl:param name="addNextStepIfExists" />
+
+		<xsl:variable name="site" select="//IDOC/E1AFKOL/WERKS" />
+		<xsl:variable name="router" select="concat(//IDOC/E1AFKOL/PLNNR,'-',//IDOC/E1AFKOL/PLNAL)" />
+		<xsl:variable name="stepSequence" select="count(preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013'] | self::E1AFVOL)" />
+		
+		<sch:RouterStep>
+			<sch:ReportingStep>
+                <xsl:value-of select="VORNR"/>
+            </sch:ReportingStep>
+			<sch:Rework>false</sch:Rework>
+			<sch:RouterStepRef>
+				<sch:StepId>
+					<xsl:number value="$stepSequence*10" format="1" />
+				</sch:StepId>
+			</sch:RouterStepRef>
+			<sch:ErpSequence><xsl:value-of select="../PLNFL" /></sch:ErpSequence>
+			<sch:ErpInternalID>
+				<xsl:value-of select="ARBID" />
+			</sch:ErpInternalID>
+			<sch:QueueDecisionType>C</sch:QueueDecisionType>
+			<xsl:choose>
+				<xsl:when test="$stepSequence=count(../../E1AFFLL[FLGAT = 0]/E1AFVOL[E1JSTVL[last()]/STAT!='I0013'])">
+					<sch:IsLastReportingStep>true</sch:IsLastReportingStep>
+					<!-- Ehancement start for DC -->
+					<!-- sch:ErpInspectionComplete>true</sch:ErpInspectionComplete -->
+					<sch:ErpInspectionComplete>false</sch:ErpInspectionComplete>
+					<!-- Ehancement end for DC -->
+				</xsl:when>
+				<xsl:otherwise>
+					<sch:IsLastReportingStep>false</sch:IsLastReportingStep>
+					<sch:ErpInspectionComplete>false</sch:ErpInspectionComplete>
+				</xsl:otherwise>
+			</xsl:choose>
+			<sch:Sequence>
+				<xsl:number value="$stepSequence" format="1" />
+			</sch:Sequence>
+			<sch:Description>
+				<xsl:value-of select="LTXA1" />
+			</sch:Description>
+			<sch:ControlKeyRef>
+				<sch:ControlKey>
+					<xsl:value-of select="STEUS" />
+				</sch:ControlKey>
+			</sch:ControlKeyRef>
+			<sch:RouterStepAttachmentList>
+				<xsl:for-each select="E1AFDOC/E1AFDPO">
+					<xsl:variable name="documentType" select="../DOKAR"/>
+					<xsl:if test="$documentType='PRT'">
+						<sch:RouterStepAttachment>
+							<sch:AttachedItem>
+								<xsl:call-template name="addWorkInstructionName">
+									<xsl:with-param name="docName" select="../DOKNR"/>
+									<xsl:with-param name="docType" select="../DOKAR"/>
+									<xsl:with-param name="docPart" select="../DOKTL"/>
+									<xsl:with-param name="docOriginal" select="ORIGINAL"/>
+								</xsl:call-template>
+							</sch:AttachedItem>
+							<sch:Revision>
+								<xsl:value-of select="../DOKVR"/>
+							</sch:Revision>
+							<sch:AttachmentType>W</sch:AttachmentType>
+						</sch:RouterStepAttachment>
+					</xsl:if>
+				</xsl:for-each>
+			</sch:RouterStepAttachmentList>
+			<sch:RouterStepComponentList>
+				<xsl:for-each select="E1RESBL">
+					<sch:RouterStepComponent>
+						<sch:ItemRef>
+							<sch:SiteRef>
+								<sch:Site>
+									<xsl:value-of select="$site"/>
+								</sch:Site>
+							</sch:SiteRef>
+							<sch:Item>
+								<xsl:value-of select="MATNR"/>
+							</sch:Item>
+							<sch:Revision>#</sch:Revision>
+						</sch:ItemRef>
+						<sch:ErpSequence>
+							<xsl:value-of select="number(POSNR)"/>
+						</sch:ErpSequence>
+						<sch:Quantity>
+							<xsl:value-of select="BDMNG"/>					
+						</sch:Quantity>
+					</sch:RouterStepComponent>
+				</xsl:for-each>
+			</sch:RouterStepComponentList>
+			<sch:RouterSubstepList>
+				<xsl:variable name="erpmaterialno" select="//IDOC/E1AFKOL/MATNR" />
+				<xsl:variable name="erprouterno" select="//IDOC/E1AFKOL/PLNNR" />
+				<xsl:variable name="erproutergroupno" select="//IDOC/E1AFKOL/PLNAL" />
+				<xsl:variable name="erpseqid" select="../PLNFL" />
+				<xsl:variable name="erpoperationid" select="VORNR" />
+											<xsl:variable name="site" select="//IDOC/E1AFKOL/WERKS"/>
+											<!--<xsl:variable name="field1" select="//IDOC/E1AFKOL/PLNNR"/>
+											<xsl:variable name="field2" select="//IDOC/E1AFKOL/PLNAL"/>
+											<xsl:variable name="field3" select="//IDOC/E1AFKOL/E1AFFLL/PLNFL"/>-->
+											<xsl:for-each select="//Row[MATERIAL_NO = $erpmaterialno and ROUTER = concat($erprouterno,'-',$erproutergroupno) and SEQ_NO = $erpseqid and ERP_STEP_ID = $erpoperationid]">
+												<xsl:variable name="seqSubstepCounter" select="position()"/>
+												<xsl:variable name="field4" select="ERP_STEP_ID"/>
+												<xsl:variable name="field5" select="SUBSTEP"/>
+												
+													<sch:RouterSubstep>
+														<xsl:choose>
+															<xsl:when test="ME_OPERATION_ID">
+																<sch:MeSpecificSubstep>true</sch:MeSpecificSubstep>
+															</xsl:when>
+															<xsl:when test="../ME_OPERATION_ID">
+																<sch:MeSpecificSubstep>true</sch:MeSpecificSubstep>
+															</xsl:when>
+															<xsl:otherwise>
+																<sch:MeSpecificSubstep>false</sch:MeSpecificSubstep>
+															</xsl:otherwise>
+														</xsl:choose>
+														<xsl:variable name="substep">
+															<xsl:choose>
+																<xsl:when test="ME_OPERATION_ID">
+																	<xsl:value-of select="ME_OPERATION_ID"/>
+																</xsl:when>
+																<xsl:when test="../ME_OPERATION_ID">
+																	<xsl:value-of select="concat(../ME_OPERATION_ID, '-',$field5)"/>
+																</xsl:when>
+																<xsl:otherwise>
+																	<xsl:value-of select="concat($erprouterno,'-',$erproutergroupno,'-',$erpseqid,'-',$field4, '-',$field5)"/>
+																</xsl:otherwise>
+															</xsl:choose>
+														</xsl:variable>
+														<xsl:variable name="substepRevision">
+															<xsl:choose>
+																<xsl:when test="ME_OPERATION_ID">
+																	<xsl:choose>
+																		<xsl:when test="ME_REVISION">
+																			<xsl:value-of select="ME_REVISION"/>
+																		</xsl:when>
+																		<xsl:otherwise>#</xsl:otherwise>
+																	</xsl:choose>
+																</xsl:when>
+																<xsl:otherwise>A</xsl:otherwise>
+															</xsl:choose>
+														</xsl:variable>
+														<sch:SubstepRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="$site"/>
+																</sch:Site>
+															</sch:SiteRef>
+															<sch:Substep>
+																<xsl:value-of select="$substep"/>
+															</sch:Substep>
+															<sch:SubstepId>
+																<xsl:number value="$seqSubstepCounter*10" format="1"/>
+															</sch:SubstepId>
+															<sch:Revision>
+																<xsl:value-of select="$substepRevision"/>
+															</sch:Revision>
+														</sch:SubstepRef>
+														<sch:CurrentRevision>true</sch:CurrentRevision>
+														<sch:ErpSuboperation>
+															<xsl:value-of select="$field5"/>
+														</sch:ErpSuboperation>
+														<sch:StatusRef>
+															<sch:SiteRef>
+																<sch:Site>
+																	<xsl:value-of select="$site"/>
+																</sch:Site>
+															</sch:SiteRef>
+															<sch:Status>RELEASABLE</sch:Status>
+														</sch:StatusRef>
+														<sch:SubstepGroup><xsl:value-of select="SUBSTEP_GROUP"/></sch:SubstepGroup>
+														<sch:SubstepDescription><xsl:value-of select="DESCRIPTION"/></sch:SubstepDescription>
+														<sch:LongDescription><xsl:value-of select="LONG_DESCRIPTION"/></sch:LongDescription>
+														<sch:SubstepType><xsl:value-of select="SUBSTEP_TYPE"/></sch:SubstepType>
+														<sch:SubstepTimer><xsl:value-of select="TIMER"/></sch:SubstepTimer>
+													</sch:RouterSubstep>
+												
+											</xsl:for-each>
+										</sch:RouterSubstepList>
+			<sch:RouterOperationList>
+				<sch:RouterOperation>
+					<sch:OperationRef>
+						<sch:Operation>
+							<xsl:value-of select="$router" />
+							<xsl:text>-</xsl:text>
+							<!-- <xsl:value-of select="//IDOC/E1AFKOL/E1MAPAL/E1PLKOL/E1AFFLL/PLNFL" /> -->
+							<xsl:value-of select="../PLNFL" />
+							<xsl:text>-</xsl:text>
+							<xsl:value-of select="VORNR" />
+						</sch:Operation>
+						<sch:Revision>#</sch:Revision>
+					</sch:OperationRef>
+					<sch:MaxLoop>0</sch:MaxLoop>
+					<sch:StepType>N</sch:StepType>
+				</sch:RouterOperation>
+			</sch:RouterOperationList>
+			<sch:RouterComp>
+				<sch:RouterOperation>
+					<sch:RouterStepRef>
+						<sch:StepId>
+							<xsl:number value="$stepSequence*10" format="1" />
+						</sch:StepId>
+					</sch:RouterStepRef>
+				</sch:RouterOperation>
+			</sch:RouterComp>
+			<sch:StepId>
+				<xsl:number value="$stepSequence*10" format="1" />
+			</sch:StepId>
+			<sch:RouterNextStepList>
+				<xsl:if test="$addNextStepIfExists">
+					<xsl:choose>
+						<xsl:when test="../../E1AFFLL[FLGAT=1 and VORNR1 = $nextRepStep]">
+							<sch:RouterNextStep>
+								<sch:NextStepRef>
+									<sch:StepId>
+										<xsl:value-of select="../../E1AFFLL[FLGAT=1 and VORNR1 = $nextRepStep]/PLNFL * 1000" />
+									</sch:StepId>
+								</sch:NextStepRef>
+								<sch:FailurePath>false</sch:FailurePath>
+							</sch:RouterNextStep>
+						</xsl:when>
+						<xsl:when test="$nextRepStep">
+							<sch:RouterNextStep>
+								<sch:NextStepRef>
+									<sch:StepId>
+										<xsl:value-of select="10 * (1 + $stepSequence)" />
+									</sch:StepId>
+								</sch:NextStepRef>
+								<sch:FailurePath>false</sch:FailurePath>
+							</sch:RouterNextStep>
+						</xsl:when>
+					</xsl:choose>
+				</xsl:if>
+			</sch:RouterNextStepList>
+			<xsl:choose>
+				<xsl:when test="ARBPL">
+					<sch:ErpWorkCenterRef>
+						<sch:WorkCenter>
+							<xsl:value-of select="ARBPL"/>
+						</sch:WorkCenter>
+					</sch:ErpWorkCenterRef>
+					<sch:ReportingCenterRef>
+						<sch:WorkCenter>
+							<xsl:value-of select="ARBPL"/>
+						</sch:WorkCenter>
+					</sch:ReportingCenterRef>
+				</xsl:when>
+				<xsl:otherwise>
+					<sch:ErpWorkCenterRef>
+						<sch:WorkCenter>ERP_ID:<xsl:value-of select="ARBID"/></sch:WorkCenter>
+					</sch:ErpWorkCenterRef>
+					<sch:ReportingCenterRef>
+						<sch:WorkCenter>ERP_ID:<xsl:value-of select="ARBID"/></sch:WorkCenter>
+					</sch:ReportingCenterRef>
+				</xsl:otherwise>
+			</xsl:choose>
+		</sch:RouterStep>
+	</xsl:template>
+
+	<xsl:template name="addSimGroupStep">
+		<xsl:param name="parallelSeqId" />
+
+		<xsl:variable name="maxReturnStep">
+			<xsl:apply-templates select="//E1AFFLL[PLNFL=$parallelSeqId]">
+				<xsl:with-param name="parallelSeqId" select="$parallelSeqId" />
+			</xsl:apply-templates>
+		</xsl:variable>
+		
+		<xsl:variable name="nextAfterMaxReturnStep" select="//E1AFFLL[FLGAT &lt; 2]/E1AFVOL[VORNR = $maxReturnStep]/following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]" />
+		
+		<sch:RouterStep>
+			<!-- SO import error workaround  START-->
+			<!-- <sch:ReportingStep>0</sch:ReportingStep> -->
+			<!-- SO import error workaround  END-->
+			<sch:RouterNextStepList>
+				<xsl:if test="$nextAfterMaxReturnStep">
+					<sch:RouterNextStep>
+						<sch:NextStepRef>
+							<xsl:choose>
+								<xsl:when test="//E1AFFLL[VORNR1 = $nextAfterMaxReturnStep/VORNR]">
+									<sch:StepId>
+										<xsl:value-of select="1000 * //E1AFFLL[VORNR1 = $nextAfterMaxReturnStep/VORNR]/PLNFL" />
+									</sch:StepId>
+								</xsl:when>
+								<xsl:otherwise>
+									<sch:StepId>
+										<xsl:value-of select="10 * (1 + count(../../E1AFFLL/E1AFVOL[VORNR = $maxReturnStep]/following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]/preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013']))" />
+									</sch:StepId>
+								</xsl:otherwise>
+							</xsl:choose>
+						</sch:NextStepRef>
+						<sch:FailurePath>false</sch:FailurePath>
+					</sch:RouterNextStep>
+				</xsl:if>
+			</sch:RouterNextStepList>
+			<sch:QueueDecisionType>C</sch:QueueDecisionType>
+			<sch:Sequence>
+				<xsl:value-of select="$parallelSeqId*1000" />
+			</sch:Sequence>
+			<sch:Description>
+				<xsl:text>Simultaneous Group </xsl:text>
+				<xsl:value-of select="$parallelSeqId*1000" />
+			</sch:Description>
+			<sch:RouterStepGroupList>
+				<xsl:call-template name="addStepGroupList">
+					<xsl:with-param name="parallelSeqId" select="$parallelSeqId" />
+					<xsl:with-param name="maxReturnStep" select="$maxReturnStep" />
+				</xsl:call-template>
+			</sch:RouterStepGroupList>
+			<sch:RouterComp>
+				<sch:RouterStepGroup>
+					<sch:RouterStepRef>
+						<sch:StepId>
+							<xsl:value-of select="1000 * $parallelSeqId" />
+						</sch:StepId>
+					</sch:RouterStepRef>
+				</sch:RouterStepGroup>
+			</sch:RouterComp>
+			<sch:StepId>
+				<xsl:value-of select="1000 * $parallelSeqId" />
+			</sch:StepId>
+		</sch:RouterStep>
+	</xsl:template>
+
+	<xsl:template name="addStepGroupList">
+		<xsl:param name="parallelSeqId" />
+		<xsl:param name="maxReturnStep" />
+		<xsl:variable name="branchStep"
+			select="//E1AFFLL[PLNFL=$parallelSeqId]/VORNR1" />
+		<xsl:variable name="returnStep" select="$maxReturnStep" />
+
+		<sch:RouterStepGroup>
+
+			<sch:RouterStepGroupType>S</sch:RouterStepGroupType>
+			<sch:RouterStepGroupStepList>
+				<xsl:variable name="stepGroupSteps">
+					<xsl:apply-templates select="//E1AFFLL[FLGAT=0]/E1AFVOL[VORNR &gt;= $branchStep and VORNR &lt;= $returnStep and E1JSTVL[last()]/STAT!='I0013']"
+											mode="multiLevelParallelSteps" />
+				</xsl:variable>
+				<xsl:for-each select="exsl:node-set($stepGroupSteps)/E1AFVOL">
+					<!-- V9 Multiple same VORNRs added to filter DLT Operation --> 
+					<xsl:variable name="currentNode" select="//E1AFVOL[VORNR = current()/VORNR and E1JSTVL[last()]/STAT!='I0013']" />
+					<!-- END -->
+					<xsl:variable name="nextStepInSeq" select="$currentNode/following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]" />
+					<sch:RouterStepGroupStep>
+						<sch:Sequence>
+							<xsl:value-of select="position()" />
+						</sch:Sequence>
+						<sch:RouterStepRef>
+							<sch:StepId>
+								<xsl:value-of select="10 * count($currentNode/preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013'] | $currentNode)" />
+							</sch:StepId>
+							<!-- <sch:ReportingStep>
+								<xsl:value-of select="VORNR" />
+							</sch:ReportingStep> -->
+						</sch:RouterStepRef>
+						<sch:Successors>
+							<!-- Add successor values recursively -->
+							<xsl:apply-templates select="$currentNode" mode="succesors">
+								<xsl:with-param name="returnStep" select="$returnStep" />
+								<xsl:with-param name="currentNode" select="$currentNode" />
+							</xsl:apply-templates>
+						</sch:Successors>
+					</sch:RouterStepGroupStep>
+
+				</xsl:for-each>
+			</sch:RouterStepGroupStepList>
+		</sch:RouterStepGroup>
+	</xsl:template>
+
+	<xsl:template match="E1AFVOL" mode="multiLevelParallelSteps">
+		<!-- Enter multiLevelParallelSteps... -->
+		<xsl:choose>
+			<xsl:when test="//E1AFFLL[FLGAT=1 and VORNR1 = current()/VORNR]">
+				<xsl:copy-of select="." />
+				<xsl:apply-templates select="//E1AFFLL[FLGAT=1 and VORNR1 = current()/VORNR]/E1AFVOL[E1JSTVL[last()]/STAT!='I0013']" mode="multiLevelParallelSteps" />
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:copy-of select="." />
+			</xsl:otherwise>
+		</xsl:choose>
+
+	</xsl:template>
+
+	<xsl:template match="E1AFVOL" mode="succesors">
+		<xsl:param name="returnStep" />
+		<xsl:param name="currentNode" />
+
+		<xsl:variable name="currentNodeSeqType" select="$currentNode/../FLGAT" />
+		<xsl:variable name="currentStep" select="." />
+		<xsl:variable name="nextStepInSequence" select="following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]" />
+		<xsl:variable name="sequenceType" select="parent::E1AFFLL/FLGAT" />
+
+		<xsl:if test="$currentStep = $currentNode and $nextStepInSequence and $currentStep/VORNR != $returnStep  ">
+			<xsl:value-of select="10 * (1 + count($nextStepInSequence/preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013']))" />
+		</xsl:if>
+		
+		<xsl:if test="$currentStep = $currentNode and $currentStep/VORNR != $returnStep and //E1AFFLL[FLGAT=1 and VORNR1=$nextStepInSequence/VORNR]">
+			<xsl:for-each select="//E1AFFLL[FLGAT=1 and VORNR1=$nextStepInSequence/VORNR]">
+				<xsl:value-of select="concat(',' , 10 * (1 + count(E1AFVOL[1]/preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013'])))" />
+				<xsl:apply-templates select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]" mode="succesors">
+					<xsl:with-param name="returnStep" select="$returnStep" />
+					<xsl:with-param name="currentNode" select="$currentNode" />
+				</xsl:apply-templates>
+			</xsl:for-each>
+		</xsl:if>
+		
+		<xsl:if test="$currentNodeSeqType = 0 and $currentStep != $currentNode and //E1AFFLL[FLGAT=1 and VORNR1=$currentStep/VORNR]">
+			<xsl:for-each select="//E1AFFLL[FLGAT=1 and VORNR1=$currentStep/VORNR]">
+				<xsl:value-of select="concat(',' , 10 * (1 + count(E1AFVOL[1]/preceding::E1AFVOL[../FLGAT &lt; 2 and E1JSTVL[last()]/STAT!='I0013'])))" />
+				<xsl:apply-templates select="E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]" mode="succesors">
+					<xsl:with-param name="returnStep" select="$returnStep" />
+					<xsl:with-param name="currentNode" select="$currentNode" />
+				</xsl:apply-templates>
+			</xsl:for-each>
+		</xsl:if>
+		
+		
+		<xsl:if test="$currentNodeSeqType = 1 and $sequenceType = 1 and not($nextStepInSequence) and ../VORNR2 != $returnStep">
+
+			<xsl:choose>
+				<xsl:when test="//E1AFVOL[VORNR = current()/parent::E1AFFLL/VORNR2]/following-sibling::E1AFVOL[E1JSTVL[last()]/STAT!='I0013'][1]">
+					<xsl:apply-templates select="//E1AFVOL[VORNR = current()/parent::E1AFFLL/VORNR2]" mode="succesors">
+						<xsl:with-param name="returnStep" select="$returnStep" />
+						<xsl:with-param name="currentNode" select="//E1AFVOL[VORNR = current()/parent::E1AFFLL/VORNR2]" />
+					</xsl:apply-templates>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates select="//E1AFVOL[VORNR = current()/parent::E1AFFLL/VORNR2]" mode="succesors">
+						<xsl:with-param name="returnStep" select="$returnStep" />
+						<xsl:with-param name="currentNode" select="$currentNode" />
+					</xsl:apply-templates>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:if>
+	</xsl:template>
+
+
+	<xsl:template match="E1AFFLL">
+		<xsl:param name="parallelSeqId" />
+
+		<xsl:variable name="minOtherParallelSeqId">
+			<xsl:for-each
+				select="//E1AFFLL[VORNR1 &gt; current()/VORNR1 and VORNR1 &lt; current()/VORNR2 and VORNR2 &gt; current()/VORNR2]">
+				<xsl:sort select="VORNR1" />
+				<xsl:if test="position()=1">
+					<xsl:value-of select="PLNFL" />
+				</xsl:if>
+			</xsl:for-each>
+		</xsl:variable>
+		
+		<!--V10 Ehnacement Adding to fix multiple parallel route with same branch and  different return -->
+		<xsl:variable name="minOtherParallelSeqId1">
+			<xsl:if test="$minOtherParallelSeqId = '' ">
+				<xsl:for-each
+					select="//E1AFFLL[VORNR1 = current()/VORNR1 and VORNR2 &gt; current()/VORNR2 and  PLNFL != $parallelSeqId ]">
+					<xsl:sort select="VORNR2" order="descending" />
+					<xsl:if test="position()=1">
+						<xsl:value-of select="PLNFL" />
+					</xsl:if>
+				</xsl:for-each>
+			</xsl:if>
+		</xsl:variable>
+		<!-- END-->
+
+		<xsl:choose>
+			<xsl:when test="$minOtherParallelSeqId != '' ">
+				<xsl:apply-templates
+					select="//E1AFFLL[PLNFL=$minOtherParallelSeqId]">
+					<xsl:with-param name="parallelSeqId"
+						select="$minOtherParallelSeqId" />
+				</xsl:apply-templates>
+			</xsl:when>
+			<!--V10 Ehnacement-->
+			<xsl:when test="$minOtherParallelSeqId1 != '' ">
+				<xsl:value-of
+					select="//E1AFFLL[PLNFL=$minOtherParallelSeqId1]/VORNR2" />
+			</xsl:when>
+			<!--End-->
+			<xsl:otherwise>
+				<xsl:value-of
+					select="//E1AFFLL[PLNFL=$parallelSeqId]/VORNR2" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+    <xsl:template name="addWorkInstructionName">
+        <xsl:param name="docName"/>
+        <xsl:param name="docType"/>
+        <xsl:param name="docPart"/>
+        <xsl:param name="docOriginal"/>
+        <xsl:value-of select="concat($docName,'-', $docType,'-',  $docPart,'-', $docOriginal)"/>
+     </xsl:template>
+    <xsl:template name="addItem">
+        <xsl:param name="item" />
+        <xsl:param name="itemExt" />
+        <xsl:param name="itemLong" />
+        <xsl:variable name="itemString">
+			<xsl:choose>
+	            <xsl:when test="$itemExt!=''">
+	            	<xsl:value-of select="normalize-space($itemExt)" />
+	            </xsl:when>
+	            <xsl:when test="$itemLong!=''">
+	            	<xsl:value-of select="normalize-space($itemLong)" />
+	            </xsl:when>
+	            <xsl:otherwise>
+	                <xsl:value-of select="normalize-space($item)" />
+	            </xsl:otherwise>
+	        </xsl:choose>
+		</xsl:variable>
+		<xsl:variable name="itemMask">
+			<xsl:choose>
+	            <xsl:when test="$itemExt!=''">
+	            	<xsl:value-of select="'0000000000000000000000000000000000000000'"/>
+	            </xsl:when>
+	            <xsl:otherwise>
+	                <xsl:value-of select="'000000000000000000'"/>
+	            </xsl:otherwise>
+            </xsl:choose>
+		</xsl:variable>
+        <xsl:variable name="itemNumber" select="string(number($itemString))"/>
+        <xsl:choose>
+            <xsl:when test="$itemNumber='NaN'">
+                <xsl:value-of select="$itemString"/>
+            </xsl:when>
+            <xsl:otherwise>
+               <!-- Ehnacement - Remove leading zero -->
+				<xsl:value-of select="$itemString"/>
+                <!-- xsl:value-of select="format-number($itemNumber, $itemMask)"/ -->
+<!-- End Ehnacement - Remove leading zero -->
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template name="addBOMName">
+        <xsl:param name="item" />
+        <xsl:param name="itemExt" />
+        <xsl:param name="itemLong" />
+        <xsl:param name="usage" />
+        <xsl:param name="altBOM" />
+        <xsl:variable name="itemString">
+            <xsl:call-template name="addItem">
+                <xsl:with-param name="item" select="$item"/>
+                <xsl:with-param name="itemExt" select="$itemExt"/>
+                <xsl:with-param name="itemLong" select="$itemLong"/>
+            </xsl:call-template>
+        </xsl:variable>
+        <xsl:value-of select="concat($itemString,'-', $usage, '-', number($altBOM))"/>
+    </xsl:template>
+    <xsl:template name="addShopOrder">
+        <xsl:param name="shopOrder" />
+        <xsl:variable name="shopOrderString" select="normalize-space($shopOrder)"/>
+        <xsl:variable name="shopOrderNumber" select="string(number($shopOrderString))"/>
+        <xsl:choose>
+            <xsl:when test="$shopOrderNumber='NaN'">
+                <xsl:value-of select="$shopOrderString"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$shopOrderNumber"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template name="trimItemLeadingZeros">
+        <xsl:param name="item" />
+        <xsl:param name="itemExt" />
+        <xsl:param name="itemLong" />
+        <xsl:variable name="itemString">
+			<xsl:choose>
+	            <xsl:when test="$itemExt!=''">
+	            	<xsl:value-of select="normalize-space($itemExt)" />
+	            </xsl:when>
+	            <xsl:when test="$itemLong!=''">
+	            	<xsl:value-of select="normalize-space($itemLong)" />
+	            </xsl:when>
+	            <xsl:otherwise>
+	                <xsl:value-of select="normalize-space($item)" />
+	            </xsl:otherwise>
+	        </xsl:choose>
+		</xsl:variable>
+        <xsl:variable name="itemNumber" select="string(number($itemString))"/>
+        <xsl:choose>
+            <xsl:when test="$itemNumber='NaN'">
+                <xsl:value-of select="$itemString"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$itemNumber"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template name="getId">
+        <xsl:param name="key" />
+        <xsl:value-of select="substring-before(substring-after($key,'?'),'?')"/>
+    </xsl:template>
+        <xsl:template name="getRevision">
+        <xsl:param name="key" />
+        <xsl:value-of select="substring-after(substring-after(substring-after($key,'?'),'?'),'?')"/>
+    </xsl:template>
+        <xsl:template match="E1STPUL">
+       <!--  <sch:BomRefDes>
+            <sch:RefDes>
+                <xsl:value-of select="translate(EBORT,'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')"/>
+            </sch:RefDes>
+            <sch:Sequence>
+                <xsl:number value="10"/>
+            </sch:Sequence>
+            <sch:Quantity>
+                <xsl:variable name="totalQty" select="number(UPMNG)"/>
+                <xsl:variable name="baseQty" select="//IDOC/E1AFKOL/BMENGE"/>
+                <xsl:value-of select="$totalQty div $baseQty"/>
+            </sch:Quantity>
+        </sch:BomRefDes> -->
+    </xsl:template>
+	<xsl:template name="RemoveLeadingZeros">
+    	<xsl:param name="sTmp"/>
+    	<xsl:choose>
+        	<xsl:when test="starts-with($sTmp, '0')">
+          		<xsl:choose>
+            		<xsl:when test="string-length($sTmp) = 1">
+              			<xsl:value-of select="$sTmp"/>
+            		</xsl:when>
+		            <xsl:otherwise>
+        	    		<xsl:call-template name="RemoveLeadingZeros">
+                			<xsl:with-param name="sTmp" select="substring($sTmp, 2, string-length($sTmp) - 1)"/>
+            			</xsl:call-template>      
+            		</xsl:otherwise>
+        		</xsl:choose>
+        	</xsl:when>
+	        <xsl:otherwise>
+        		<xsl:value-of select="$sTmp"/>
+        	</xsl:otherwise>
+    	</xsl:choose>
+	</xsl:template>
+</xsl:stylesheet>
