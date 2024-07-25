@@ -1,0 +1,1218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xfa generator="AdobeLiveCycleDesigner_V11.0.1.20140218.1.907162" APIVersion="3.6.13324.0"?>
+<xdp:xdp xmlns:xdp="http://ns.adobe.com/xdp/" timeStamp="2023-08-14T12:00:37Z" uuid="01824da6-3843-42bb-9e18-2ea41c445008">
+<template xmlns="http://www.xfa.org/schema/xfa-template/3.3/">
+   <?formServer defaultPDFRenderFormat acrobat10.0dynamic?>
+   <?formServer allowRenderCaching 0?>
+   <?formServer formModel both?>
+   <subform name="Row" layout="tb" locale="da_DK" restoreState="auto">
+      <pageSet>
+         <pageArea name="Page1" id="Page1">
+            <contentArea x="0.213mm" y="0.105mm" w="119.906mm" h="199.385mm"/>
+            <medium stock="custom" short="120mm" long="200mm"/>
+            <draw name="Line1" y="104.907mm" x="5.851mm" w="107.95mm" h="0in">
+               <value>
+                  <line slope="/">
+                     <edge thickness="0.4mm"/>
+                  </line>
+               </value>
+            </draw>
+            <draw name="Text2" y="19.628mm" x="97.152mm" w="16.512mm" h="0.150472in">
+               <ui>
+                  <textEdit/>
+               </ui>
+               <value>
+                  <text>AF Horsens</text>
+               </value>
+               <font size="8pt" typeface="Arial" baselineShift="0pt"/>
+               <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+               <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <?renderCache.bounds 43972 8000 0 0 1417 1417 0 0?>
+               <?renderCache.textRun 10 AF Horsens 0 1417 7733 0 0 0 "Arial" 0 0 8000 ISO-8859-1?></draw>
+            <draw w="23.704mm" h="24.768mm" x="83.608mm" y="110.408mm">
+               <value>
+                  <image href="..\..\madlogo.jpg"/>
+               </value>
+               <ui>
+                  <imageEdit/>
+               </ui>
+            </draw>
+            <draw name="Line1" y="32.1mm" x="6mm" w="107.95mm" h="0in">
+               <value>
+                  <line slope="/">
+                     <edge thickness="0.4mm"/>
+                  </line>
+               </value>
+            </draw>
+            <draw w="19.029mm" h="10.214mm" x="95.863mm" y="11.81mm">
+               <value>
+                  <image href="..\..\amcorlogo0223 jpg.jpg"/>
+               </value>
+               <ui>
+                  <imageEdit/>
+               </ui>
+            </draw>
+            <?templateDesigner expand 1?></pageArea>
+         <?templateDesigner expand 1?></pageSet>
+      <subform w="119.905mm" h="198.578mm">
+         <draw name="Text1" y="184.061mm" w="0.726417in" h="5.928mm" x="5.396mm">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Reel width:</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 49468 13970 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 11 Reel width: 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <draw name="Text1" y="184.002mm" x="27.77mm" w="0.726417in" h="5.928mm">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Cut-off len:</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 49468 13970 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 12 Cut-off len: 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <draw name="Text1" y="183.952mm" x="49.378mm" w="0.726417in" h="5.928mm">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Quantity::</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 49468 13970 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 10 Quantity:: 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <draw name="Text1" y="184.223mm" x="71.422mm" w="0.726417in" h="5.928mm">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>No of cuts:</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 49468 13970 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 11 No of cuts: 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <field name="c" y="25.058mm" x="52.138mm" w="41.904mm" h="7.645mm" access="readOnly">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </numericEdit>
+            </ui>
+            <font size="16pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <font size="8pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="bottom" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            </caption>
+            <bind match="dataRef" ref="$.ProductionOrder"/>
+            <format>
+               <picture>num{zzzzzzzzzzzz9}</picture>
+            </format>
+         </field>
+         <draw name="Text3" y="20.974mm" x="53.194mm" w="29.2864mm" h="0.150472in">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Prod. no:</text>
+            </value>
+            <font size="8pt" typeface="Arial"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <?renderCache.bounds 80183 8000 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 9 Prod. no: 0 1417 7733 0 0 0 "Arial" 0 0 8000 ISO-8859-1?></draw>
+         <draw name="Text3" y="20.536mm" x="5.959mm" w="21.584mm" h="0.150472in">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Sales order:</text>
+            </value>
+            <font size="8pt" typeface="Arial"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <?renderCache.bounds 58349 8000 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 12 Sales order: 0 1417 7733 0 0 0 "Arial" 0 0 8000 ISO-8859-1?></draw>
+         <field name="Operation_Quantity" y="54.548mm" x="5.851mm" w="104.646mm" h="5.528mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="37.8762mm">
+               <para vAlign="middle"/>
+               <value>
+                  <text>Qty</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.Operation_Quantity"/>
+         </field>
+         <field name="TimeStamp_Creation" y="60.222mm" x="5.71mm" w="68.092mm" h="5.528mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="37.5585mm">
+               <font typeface="Arial" baselineShift="0pt" weight="bold"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Prod. date:</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.TimeStamp_Creation"/>
+         </field>
+         <field y="25.086mm" w="47.451mm" h="7.557mm" access="readOnly" name="salesorder" x="4.576mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="14pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="none"/>
+         </field>
+         <field name="TimeStamp_Creation" y="169.123mm" x="80.329mm" w="31.96mm" h="0.162083in" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="18.6184mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Prod. date:</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.TimeStamp_Creation"/>
+         </field>
+         <field name="material" y="165.716mm" w="53.411mm" h="4.117mm" access="readOnly" x="4.789mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="17.144mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>F.P.NO:</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.Material"/>
+         </field>
+         <field name="ItemID" y="169.019mm" w="43.565mm" h="4.117mm" access="readOnly" x="4.738mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" size="6pt"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="16.936mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Reel no:</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.ItemID"/>
+         </field>
+         <field name="MaterialDescription" y="172.305mm" w="62mm" h="0.162083in" access="readOnly" x="4.789mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" size="6pt"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="17.022mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Mat. desc:</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.MaterialDescription"/>
+         </field>
+         <field name="LEGACY_PRODUCT_STRUCTURE" y="175.697mm" w="75.86mm" h="4.117mm" access="readOnly" x="4.739mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" size="6pt"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="17.0261mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Structure</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.LEGACY_PRODUCT_STRUCTURE"/>
+         </field>
+         <field name="Design_Width" y="181.303mm" x="16.042mm" w="16.08mm" h="8.661mm" access="readOnly">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </numericEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Design_Width"/>
+            <format>
+               <picture>num{zzzzzzzzzzzz9}</picture>
+            </format>
+         </field>
+         <field name="Repeat_Length" y="181.302mm" x="38.669mm" w="16.088mm" h="8.661mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Repeat_Length"/>
+         </field>
+         <field name="Operation_Quantity" y="181.27mm" x="58.215mm" w="16.928mm" h="8.873mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Operation_Quantity"/>
+         </field>
+         <field name="Cut" y="183.553mm" x="81.175mm" w="20.434mm" h="4.664mm" access="readOnly">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </numericEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+Cut=(Operation_Quantity/Repeat_Length)*1000
+</script>
+            </calculate>
+            <format>
+               <picture>num{zzzzzzzzzzzz9}</picture>
+            </format>
+         </field>
+         <field name="Operation_UoM" y="54.584mm" x="53.255mm" w="10.889mm" h="0.217639in" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Operation_UoM"/>
+         </field>
+         <field name="Customer_Part_Code" y="189.322mm" w="82.592mm" h="5.17mm" x="3.576mm">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Customer_Part_Code"/>
+         </field>
+         <field name="Reel_Nr" y="60.326mm" x="82.351mm" w="30.381mm" h="9mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="16pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="bottom"/>
+            <caption reserve="14.1508mm">
+               <para vAlign="bottom" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <font typeface="Arial" baselineShift="0pt"/>
+               <value>
+                  <text>Reel No</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.Reel_Nr"/>
+         </field>
+         <field name="Reel_Nr" y="187.257mm" x="101.183mm" w="12.466mm" h="9.459mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="18pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Reel_Nr"/>
+         </field>
+         <draw name="Text4" y="8.299mm" x="5.746mm" w="16.491mm" h="0.122694in">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>lavazza</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 43912 6000 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 7 lavazza 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <draw name="Text5" y="33.527mm" x="6.704mm" w="105.224mm" h="0.17825in">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>Supplier		Amcor Flexible Horsens</text>
+            </value>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <?renderCache.bounds 295439 10000 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 8 Supplier 0 1417 9313 0 0 0 "Arial" 1 0 10000 ISO-8859-1?>
+            <?renderCache.textRun 1   0 41422 9313 0 0 0 "Arial" 1 0 10000 ISO-8859-1?>
+            <?renderCache.textRun 1   0 73417 9313 0 0 0 "Arial" 1 0 10000 ISO-8859-1?>
+            <?renderCache.textRun 22 Amcor Flexible Horsens 0 109417 9313 0 0 0 "Arial" 1 0 10000 ISO-8859-1?></draw>
+         <field name="Customer_Part_Code" y="37.843mm" x="6.184mm" w="104.48mm" h="5.528mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="37.3454mm">
+               <font typeface="Arial" baselineShift="0pt" weight="bold"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Product code</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.Customer_Part_Code"/>
+         </field>
+         <field name="Customer_Part_Desc" y="43.481mm" x="5.924mm" w="104.48mm" h="5.528mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <font typeface="Arial" baselineShift="0pt" weight="bold"/>
+               <para vAlign="middle" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            </caption>
+            <bind match="dataRef" ref="$.Customer_Part_Desc"/>
+         </field>
+         <field name="ProductionOrder" y="49.156mm" x="5.746mm" w="104.921mm" h="5.528mm" access="readOnly">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </numericEdit>
+            </ui>
+            <font typeface="Arial" weight="bold"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="38.0893mm">
+               <font typeface="Arial" baselineShift="0pt" weight="bold"/>
+               <para vAlign="bottom" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Batch nr.</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.ProductionOrder"/>
+            <format>
+               <picture>num{zzzzzzzzzzzz9}</picture>
+            </format>
+         </field>
+         <draw w="36.919mm" h="22.873mm" x="36.919mm" y="107.355mm">
+            <value>
+               <image href=".\united-states-of-america-flag-png-large.png"/>
+            </value>
+            <ui>
+               <imageEdit/>
+            </ui>
+         </draw>
+         <field name="Code128BarCode2" y="87.245mm" x="5.746mm" w="87.35mm" h="12.423mm" access="readOnly">
+            <ui>
+               <barcode type="code128" wideNarrowRatio="fixed" checksum="auto" textLocation="none" dataLength="23"/>
+            </ui>
+            <font typeface="Courier New"/>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+concat("11",creation_YY,creation_MM,creation_DD,"37",Operation_Quantity)
+</script>
+            </calculate>
+         </field>
+         <field name="creation_YY" y="10.487mm" x="123.344mm" w="28.783mm" h="13.707mm" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.185306in" placement="top">
+               <para vAlign="middle"/>
+               <value>
+                  <text>creation_YY</text>
+               </value>
+            </caption>
+            <bind match="none"/>
+            <format>
+               <picture>date{MMDDYY} time{}</picture>
+            </format>
+            <calculate>
+               <script runAt="both">Substr(TimeStamp_Creation, 7, 2)
+
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+               <fill>
+                  <color value="255,204,153"/>
+               </fill>
+            </border>
+         </field>
+         <field name="TimeStamp_Creation" y="0.001mm" x="26.26mm" w="5.637mm" h="5.668mm" presence="invisible">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="1.3749mm" placement="top">
+               <para vAlign="middle"/>
+               <value>
+                  <text>Time Stamp_Creation</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.Rowset.Row.TimeStamp_Creation"/>
+            <border>
+               <edge presence="hidden"/>
+               <fill>
+                  <color value="255,204,153"/>
+               </fill>
+            </border>
+         </field>
+         <field name="creation_DD" y="2.146mm" x="77.1mm" w="10.277mm" h="7.868mm" access="readOnly" presence="invisible">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="3.5749mm" placement="top">
+               <para vAlign="middle"/>
+               <value>
+                  <text>creation_DD</text>
+               </value>
+            </caption>
+            <bind match="none"/>
+            <format>
+               <picture>date{MMDDYY} time{}</picture>
+            </format>
+            <calculate>
+               <script runAt="both">Substr(TimeStamp_Creation, 1, 2)
+
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+               <fill>
+                  <color value="255,204,153"/>
+               </fill>
+            </border>
+         </field>
+         <field name="creation_MM" y="0.597mm" x="56.96mm" w="12.478mm" h="5.913mm" access="readOnly" presence="invisible">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="1.6199mm" placement="top">
+               <para vAlign="middle"/>
+               <value>
+                  <text>creation_MM</text>
+               </value>
+            </caption>
+            <bind match="none"/>
+            <format>
+               <picture>date{MMDDYY} time{}</picture>
+            </format>
+            <calculate>
+               <script runAt="both">Substr(TimeStamp_Creation, 4, 2)
+
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+               <fill>
+                  <color value="255,204,153"/>
+               </fill>
+            </border>
+         </field>
+         <field name="creation_YY" y="2.008mm" x="44.144mm" w="11.267mm" h="6.457mm" access="readOnly" presence="invisible">
+            <ui>
+               <textEdit>
+                  <border>
+                     <edge stroke="lowered"/>
+                  </border>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="2.1639mm" placement="top">
+               <para vAlign="middle"/>
+               <value>
+                  <text>creation_YY</text>
+               </value>
+            </caption>
+            <bind match="none"/>
+            <format>
+               <picture>date{MMDDYY} time{}</picture>
+            </format>
+            <calculate>
+               <script runAt="both">Substr(TimeStamp_Creation, 7, 2)
+
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+               <fill>
+                  <color value="255,204,153"/>
+               </fill>
+            </border>
+         </field>
+         <field name="TextField1" y="98.737mm" x="22.129mm" w="31.386mm" h="0.217639in" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" size="6pt"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+               <font typeface="Arial"/>
+            </caption>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+concat("(11)",creation_YY,creation_MM,creation_DD,"(37)",Operation_Quantity)
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+            </border>
+         </field>
+         <field name="Code128BarCode2" y="133.634mm" x="4.576mm" w="113.098mm" h="27.771mm" access="readOnly">
+            <ui>
+               <barcode type="code128" wideNarrowRatio="fixed" checksum="auto" textLocation="none" dataLength="50"/>
+            </ui>
+            <font typeface="Courier New"/>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+concat("913",ItemID)
+</script>
+            </calculate>
+         </field>
+         <field name="Code128BarCode2" y="67.774mm" x="6.382mm" w="87.35mm" h="13.089mm" access="readOnly">
+            <ui>
+               <barcode type="code128" wideNarrowRatio="fixed" checksum="auto" textLocation="none" dataLength="50"/>
+            </ui>
+            <font typeface="Courier New"/>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+concat("10",ProductionOrder)
+</script>
+            </calculate>
+         </field>
+         <draw name="Text2" y="177.683mm" x="105.864mm" w="12.222mm" h="0.122694in">
+            <ui>
+               <textEdit/>
+            </ui>
+            <value>
+               <text>AF Horsens</text>
+            </value>
+            <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+            <margin topInset="0.5mm" bottomInset="0.5mm" leftInset="0.5mm" rightInset="0.5mm"/>
+            <para spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+            <?renderCache.bounds 31811 6000 0 0 1417 1417 0 0?>
+            <?renderCache.textRun 10 AF Horsens 0 1417 6154 0 0 0 "Arial" 0 0 6000 ISO-8859-1?></draw>
+         <draw w="12.445mm" h="5.743mm" x="105.759mm" y="174.063mm">
+            <value>
+               <image href="..\..\amcorlogo0223 jpg.jpg"/>
+            </value>
+            <ui>
+               <imageEdit/>
+            </ui>
+         </draw>
+         <field name="Input_itemID" y="169.076mm" x="48.621mm" w="30.747mm" h="0.162083in" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+            </caption>
+            <bind match="dataRef" ref="$.Input_itemID"/>
+         </field>
+         <field name="c" y="165.742mm" x="80.387mm" w="34.579mm" h="0.162083in" access="readOnly">
+            <ui>
+               <numericEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </numericEdit>
+            </ui>
+            <font size="6pt" typeface="Arial"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="10.214mm">
+               <font size="6pt" typeface="Arial" baselineShift="0pt"/>
+               <para vAlign="bottom" spaceAbove="0pt" spaceBelow="0pt" textIndent="0pt" marginLeft="0pt" marginRight="0pt"/>
+               <value>
+                  <text>Prod.no</text>
+               </value>
+            </caption>
+            <bind match="dataRef" ref="$.ProductionOrder"/>
+            <format>
+               <picture>num{zzzzzzzzzzzz9}</picture>
+            </format>
+         </field>
+         <field name="TextField1" y="81.394mm" x="21.494mm" w="31.386mm" h="0.217639in" access="readOnly">
+            <ui>
+               <textEdit>
+                  <border presence="hidden"/>
+                  <margin/>
+               </textEdit>
+            </ui>
+            <font typeface="Arial" size="6pt"/>
+            <margin topInset="1mm" bottomInset="1mm" leftInset="1mm" rightInset="1mm"/>
+            <para vAlign="middle"/>
+            <caption reserve="0.01in">
+               <para vAlign="middle"/>
+               <font typeface="Arial"/>
+            </caption>
+            <bind match="none"/>
+            <calculate>
+               <script runAt="both">
+
+concat("(10)",ProductionOrder)
+</script>
+            </calculate>
+            <border>
+               <edge presence="hidden"/>
+            </border>
+         </field>
+         <?templateDesigner expand 1?></subform>
+      <proto/>
+      <desc>
+         <text name="version">11.0.1.20140218.1.907162.903801</text>
+      </desc>
+      <?templateDesigner Hyphenation excludeInitialCap:1, excludeAllCaps:1, wordCharCnt:7, remainCharCnt:3, pushCharCnt:3?>
+      <?templateDesigner expand 1?>
+      <?renderCache.subset "Arial" 0 0 ISO-8859-1 4 184 46 000300100011001D00240026002700280029002A002B002C00300031003200330034003500360037003C0042004400450046004700480049004A004B004C004E004F005000510052005300550056005700580059005A005B005C005D -.:ACDEFGHIMNOPQRSTY_abcdefghiklmnoprstuvwxyz?>
+      <?renderCache.subset "Arial" 1 0 ISO-8859-1 4 112 28 00030011001D002400250029002B00330034003600440045004600470048004B004C004F00500051005200530055005600570058005B005C .:ABFHPQSabcdehilmnoprstuxy?>
+      <?renderCache.subset "Courier New" 0 0 ISO-8859-1 4 40 10 0013001400150016001700180019001A001B001C0123456789?></subform>
+   <?templateDesigner DefaultPreviewDynamic 1?>
+   <?templateDesigner WidowOrphanControl 0?>
+   <?templateDesigner SavePDFWithLog 0?>
+   <?originalXFAVersion http://www.xfa.org/schema/xfa-template/3.3/?>
+   <?templateDesigner Grid show:1, snap:0, units:17, color:ff8080, origin:(0,0), interval:(25000,25000), objsnap:0, guidesnap:0, pagecentersnap:0?>
+   <?templateDesigner FormTargetVersion 33?>
+   <?templateDesigner DefaultLanguage JavaScript?>
+   <?templateDesigner DefaultRunAt client?>
+   <?acrobat JavaScript strictScoping?>
+   <?PDFPrintOptions embedViewerPrefs 0?>
+   <?PDFPrintOptions embedPrintOnFormOpen 0?>
+   <?PDFPrintOptions scalingPrefs 0?>
+   <?PDFPrintOptions enforceScalingPrefs 0?>
+   <?PDFPrintOptions paperSource 0?>
+   <?PDFPrintOptions duplexMode 0?>
+   <?templateDesigner DefaultPreviewType interactive?>
+   <?templateDesigner DefaultPreviewPagination simplex?>
+   <?templateDesigner XDPPreviewFormat 20?>
+   <?templateDesigner DefaultPreviewDataFileName ..\..\Output  Label real milk froth slit.xml?>
+   <?templateDesigner DefaultCaptionFontSettings face:Myriad Pro;size:10;weight:normal;style:normal?>
+   <?templateDesigner DefaultValueFontSettings face:Myriad Pro;size:10;weight:normal;style:normal?>
+   <?templateDesigner Zoom 248?>
+   <?templateDesigner SaveTaggedPDF 0?>
+   <?templateDesigner SavePDFWithEmbeddedFonts 0?>
+   <?templateDesigner Rulers horizontal:1, vertical:1, guidelines:1, crosshairs:0?></template>
+<config xmlns="http://www.xfa.org/schema/xci/3.0/">
+   <agent name="designer">
+      <!--  [0..n]  -->
+      <destination>pdf</destination>
+      <pdf>
+         <!--  [0..n]  -->
+         <fontInfo/>
+      </pdf>
+   </agent>
+   <present>
+      <!--  [0..n]  -->
+      <pdf>
+         <!--  [0..n]  -->
+         <fontInfo>
+            <embed>0</embed>
+         </fontInfo>
+         <tagged>0</tagged>
+         <version>1.7</version>
+         <adobeExtensionLevel>8</adobeExtensionLevel>
+      </pdf>
+      <common>
+         <data>
+            <xsl>
+               <uri/>
+            </xsl>
+            <outputXSL>
+               <uri/>
+            </outputXSL>
+         </data>
+      </common>
+      <xdp>
+         <packets>*</packets>
+      </xdp>
+   </present>
+</config>
+<localeSet xmlns="http://www.xfa.org/schema/xfa-locale-set/2.7/">
+   <locale name="da_DK" desc="Danish (Denmark)">
+      <calendarSymbols name="gregorian">
+         <monthNames>
+            <month>januar</month>
+            <month>februar</month>
+            <month>marts</month>
+            <month>april</month>
+            <month>maj</month>
+            <month>juni</month>
+            <month>juli</month>
+            <month>august</month>
+            <month>september</month>
+            <month>oktober</month>
+            <month>november</month>
+            <month>december</month>
+         </monthNames>
+         <monthNames abbr="1">
+            <month>jan</month>
+            <month>feb</month>
+            <month>mar</month>
+            <month>apr</month>
+            <month>maj</month>
+            <month>jun</month>
+            <month>jul</month>
+            <month>aug</month>
+            <month>sep</month>
+            <month>okt</month>
+            <month>nov</month>
+            <month>dec</month>
+         </monthNames>
+         <dayNames>
+            <day>søndag</day>
+            <day>mandag</day>
+            <day>tirsdag</day>
+            <day>onsdag</day>
+            <day>torsdag</day>
+            <day>fredag</day>
+            <day>lørdag</day>
+         </dayNames>
+         <dayNames abbr="1">
+            <day>sø</day>
+            <day>ma</day>
+            <day>ti</day>
+            <day>on</day>
+            <day>to</day>
+            <day>fr</day>
+            <day>lø</day>
+         </dayNames>
+         <meridiemNames>
+            <meridiem>AM</meridiem>
+            <meridiem>PM</meridiem>
+         </meridiemNames>
+         <eraNames>
+            <era>F.KR.</era>
+            <era>E.KR.</era>
+         </eraNames>
+      </calendarSymbols>
+      <datePatterns>
+         <datePattern name="full">EEEE 'den' D. MMMM YYYY</datePattern>
+         <datePattern name="long">D. MMM YYYY</datePattern>
+         <datePattern name="med">DD/MM/YYYY</datePattern>
+         <datePattern name="short">DD/MM/YY</datePattern>
+      </datePatterns>
+      <timePatterns>
+         <timePattern name="full">H.MM.SS Z</timePattern>
+         <timePattern name="long">H.MM.SS Z</timePattern>
+         <timePattern name="med">H.MM.SS</timePattern>
+         <timePattern name="short">H.MM</timePattern>
+      </timePatterns>
+      <dateTimeSymbols>GuMtkHmsSEDFwWahKzZ</dateTimeSymbols>
+      <numberPatterns>
+         <numberPattern name="numeric">z,zz9.zzz</numberPattern>
+         <numberPattern name="currency">$ z,zz9.99</numberPattern>
+         <numberPattern name="percent">z,zz9%</numberPattern>
+      </numberPatterns>
+      <numberSymbols>
+         <numberSymbol name="decimal">,</numberSymbol>
+         <numberSymbol name="grouping">.</numberSymbol>
+         <numberSymbol name="percent">%</numberSymbol>
+         <numberSymbol name="minus">-</numberSymbol>
+         <numberSymbol name="zero">0</numberSymbol>
+      </numberSymbols>
+      <currencySymbols>
+         <currencySymbol name="symbol">kr</currencySymbol>
+         <currencySymbol name="isoname">DKK</currencySymbol>
+         <currencySymbol name="decimal">,</currencySymbol>
+      </currencySymbols>
+      <typefaces>
+         <typeface name="Myriad Pro"/>
+         <typeface name="Minion Pro"/>
+         <typeface name="Courier Std"/>
+         <typeface name="Adobe Pi Std"/>
+         <typeface name="Adobe Hebrew"/>
+         <typeface name="Adobe Arabic"/>
+         <typeface name="Adobe Thai"/>
+         <typeface name="Kozuka Gothic Pro-VI M"/>
+         <typeface name="Kozuka Mincho Pro-VI R"/>
+         <typeface name="Adobe Ming Std L"/>
+         <typeface name="Adobe Song Std L"/>
+         <typeface name="Adobe Myungjo Std M"/>
+         <typeface name="Adobe Devanagari"/>
+      </typefaces>
+   </locale>
+</localeSet>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.4-c005 78.150055, 2013/08/07-22:58:47        ">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description xmlns:xmp="http://ns.adobe.com/xap/1.0/" xmlns:pdf="http://ns.adobe.com/pdf/1.3/" xmlns:xmpMM="http://ns.adobe.com/xap/1.0/mm/" xmlns:desc="http://ns.adobe.com/xfa/promoted-desc/" rdf:about="">
+         <xmp:MetadataDate>2023-08-14T12:00:37Z</xmp:MetadataDate>
+         <xmp:CreatorTool>Adobe LiveCycle Designer 11.0</xmp:CreatorTool>
+         <pdf:Producer>Adobe LiveCycle Designer 11.0</pdf:Producer>
+         <xmpMM:DocumentID>uuid:01824da6-3843-42bb-9e18-2ea41c445008</xmpMM:DocumentID>
+         <desc:version rdf:parseType="Resource">
+            <rdf:value>11.0.1.20140218.1.907162.903801</rdf:value>
+            <desc:ref>/template/subform[1]</desc:ref>
+         </desc:version>
+      </rdf:Description>
+   </rdf:RDF>
+</x:xmpmeta>
+<xfa:datasets xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/">
+   <xfa:data xfa:dataNode="dataGroup"/>
+   <dd:dataDescription xmlns:dd="http://ns.adobe.com/data-description/" dd:name="Row">
+      <Row>
+         <Separator/>
+         <ItemID/>
+         <ProductionOrder/>
+         <Operation/>
+         <Workcenter/>
+         <Station/>
+         <Cut/>
+         <Base_Quantity/>
+         <Base_UoM/>
+         <Operation_Quantity/>
+         <Operation_UoM/>
+         <Sales_Quantity/>
+         <Sales_UoM/>
+         <Gross_Weight/>
+         <Net_Weight/>
+         <Tare_Weight/>
+         <MaterialDescription/>
+         <Material/>
+         <Stock_Type/>
+         <ReasonDescription/>
+         <Availability_Date/>
+         <Expiry_Date/>
+         <Customer_Availability_Date/>
+         <Customer_Expiry_Date/>
+         <TimeStamp_Creation/>
+         <KMATDescription/>
+         <CustomerName/>
+         <CustomerLanguage/>
+         <Customer_PurchaseOrder/>
+         <Customer_Part_Code/>
+         <Customer_Part_Desc/>
+         <CustomerNo/>
+         <Operator/>
+         <Design_Width/>
+         <Rework/>
+         <Spare2/>
+         <Spare3/>
+         <Spare4/>
+         <Spare5/>
+         <FlagSeq1/>
+         <FlagWorkcenter1/>
+         <FlagQty1/>
+         <Start_location1/>
+         <End_location1/>
+         <FlagLanes1/>
+         <FlagReason1/>
+         <FlagOrigin1/>
+         <FlagSeq2/>
+         <FlagWorkcenter2/>
+         <FlagQty2/>
+         <Start_location2/>
+         <End_location2/>
+         <FlagLanes2/>
+         <FlagReason2/>
+         <FlagOrigin2/>
+         <FlagSeq3/>
+         <FlagWorkcenter3/>
+         <FlagQty3/>
+         <Start_location3/>
+         <End_location3/>
+         <FlagLanes3/>
+         <FlagReason3/>
+         <FlagOrigin3/>
+         <FlagSeq4/>
+         <FlagWorkcenter4/>
+         <FlagQty4/>
+         <Start_location4/>
+         <End_location4/>
+         <FlagLanes4/>
+         <FlagReason4/>
+         <FlagOrigin4/>
+         <FlagSeq5/>
+         <FlagWorkcenter5/>
+         <FlagQty5/>
+         <Start_location5/>
+         <End_location5/>
+         <FlagLanes5/>
+         <FlagReason5/>
+         <FlagOrigin5/>
+         <FlagSeq6/>
+         <FlagWorkcenter6/>
+         <FlagQty6/>
+         <Start_location6/>
+         <End_location6/>
+         <FlagLanes6/>
+         <FlagReason6/>
+         <FlagOrigin6/>
+         <FlagSeq7/>
+         <FlagWorkcenter7/>
+         <FlagQty7/>
+         <Start_location7/>
+         <End_location7/>
+         <FlagLanes7/>
+         <FlagReason7/>
+         <FlagOrigin7/>
+         <FlagSeq8/>
+         <FlagWorkcenter8/>
+         <FlagQty8/>
+         <Start_location8/>
+         <End_location8/>
+         <FlagLanes8/>
+         <FlagReason8/>
+         <FlagOrigin8/>
+         <FlagSeq9/>
+         <FlagWorkcenter9/>
+         <FlagQty9/>
+         <Start_location9/>
+         <End_location9/>
+         <FlagLanes9/>
+         <FlagReason9/>
+         <FlagOrigin9/>
+         <FlagSeq10/>
+         <FlagWorkcenter10/>
+         <FlagQty10/>
+         <Start_location10/>
+         <End_location10/>
+         <FlagLanes10/>
+         <FlagReason10/>
+         <FlagOrigin10/>
+         <Parent_Cut/>
+         <Waste_Stream_Indicator/>
+         <Repeat_Length/>
+         <Type/>
+         <Operation_CureTime/>
+         <NextOperation1/>
+         <NextWorkcenter1/>
+         <NextCureTime1/>
+         <NextOperation2/>
+         <NextWorkcenter2/>
+         <NextCureTime2/>
+         <GTIN_EAN/>
+         <Thickness/>
+         <Nbr_Flags/>
+         <Treatment/>
+         <Input_ItemList/>
+         <TR_CORE_DIAM/>
+         <LEGACY_PRODUCT_STRUCTURE/>
+         <TR_REEL_MINI/>
+         <TR_REEL_OUTS/>
+         <CORE_Weight/>
+         <Process_width/>
+         <Derogation_text/>
+         <TR_REF_ART/>
+         <NB_Item/>
+         <Input_itemID/>
+         <PRODHIERARCHY/>
+         <I_Item_LUGO/>
+         <InfoRec_Cust_Material/>
+         <InfoRec_Customer_Material_Desc/>
+         <InfoRec_Customer_Name/>
+         <Cur_Workstation/>
+         <Max_Station/>
+         <Quantity_to_produce/>
+         <QTY_Produced_until_now/>
+         <ZE_CIRCUMFERENCE/>
+         <Child_Order/>
+         <Machine_leader/>
+         <Impression_Counter/>
+         <Container_ID/>
+         <Optional_Rewind/>
+         <QM_Check/>
+         <TR_BUNDLE/>
+         <Thickness_Change/>
+         <Product_Structure_Change/>
+         <CONV_G/>
+         <TR_EMBO_TYPE/>
+         <CUSTOMER_SPECIFICATION/>
+         <Sales_Txt/>
+         <ALTERNATIVE_QUANTITY_PCE/>
+         <CROWN_Output_Macro_Traceability/>
+         <CROWN_Input_Macro_Traceability/>
+         <BAUSCH_TRACE_CONCATENATION/>
+         <CROWN_TRACE_CONCATENATION/>
+         <Team_Desc/>
+         <Item_Comments/>
+         <CONV_G/>
+         <Sales_Quantity_Orig/>
+         <Sales_UoM_Orig/>
+         <Kombine_Desc/>
+         <Kombine_Width/>
+         <Identification/>
+         <AL_Thickness/>
+         <CERAMIS_TRACE/>
+         <Reel_Nr/>
+         <SPEZVERSION/>
+         <CylinderMaterial_9001/>
+         <SIOX_Outside/>
+         <TR_CUST_MACH/>
+         <CONTAINER_SIGNUM/>
+      </Row>
+   </dd:dataDescription>
+</xfa:datasets>
+<connectionSet xmlns="http://www.xfa.org/schema/xfa-connection-set/2.8/">
+   <xmlConnection name="DataConnection" dataDescription="Row">
+      <uri>..\..\Output  Label real milk froth slit.xml</uri>
+      <?templateDesigner fileDigest shaHash="GaLQTPglwEMoi02VaRnLWCyNjZg="?></xmlConnection>
+</connectionSet></xdp:xdp>
